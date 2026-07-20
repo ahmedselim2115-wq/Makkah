@@ -1,0 +1,47 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  price       Float
+  imageUrl    String
+  category    String   @default("ثلاجات")
+  capacity    String?
+  temperature String?
+  power       String?
+  featured    Boolean  @default(false)
+  inStock     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SiteSettings {
+  id            String   @id @default(cuid())
+  heroTitle     String   @default("مصنع مكة للثلاجات")
+  heroSubtitle  String   @default("روافد التبريد الحديثة")
+  heroImage     String   @default("")
+  aboutTitle    String   @default("من نحن")
+  aboutText     String   @default("مصنع مكة للثلاجات هو مصنع رائد في تصنيع الثلاجات التجارية والصناعية")
+  aboutImage    String   @default("")
+  phone         String   @default("")
+  email         String   @default("")
+  address       String   @default("")
+  workingHours  String   @default("السبت - الخميس: 9 صباحاً - 6 مساءً")
+  facebook      String   @default("")
+  instagram     String   @default("")
+  whatsapp      String   @default("")
+  adminPassword String   @default("admin123")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
