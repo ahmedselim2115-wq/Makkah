@@ -1,0 +1,40 @@
+{
+  "products": [
+    {
+      "id": "cmrtiflro0001t9a0yitfvs10",
+      "name": "product",
+      "description": "dddddd",
+      "price": 33,
+      "imageUrl": "/uploads/1784573614864-t5nie0v.png",
+      "category": "ثلاجات تجارية",
+      "capacity": "490",
+      "temperature": null,
+      "power": "540",
+      "featured": true,
+      "inStock": false,
+      "createdAt": "2026-07-20T17:40:13.428Z",
+      "updatedAt": "2026-07-21T07:39:54.168Z"
+    }
+  ],
+  "settings": [
+    {
+      "id": "cmrtie19a0000t9a09vkeu5tk",
+      "heroTitle": "مصنع مكة للثلاجات",
+      "heroSubtitle": "روافد التبريد الحديثة",
+      "heroImage": "",
+      "aboutTitle": "من نحن",
+      "aboutText": "مصنع مكة للثلاجات هو مصنع رائد في تصنيع الثلاجات التجارية والصناعية",
+      "aboutImage": "",
+      "phone": "",
+      "email": "",
+      "address": "",
+      "workingHours": "السبت - الخميس: 9 صباحاً - 6 مساءً",
+      "facebook": "",
+      "instagram": "",
+      "whatsapp": "01080188955",
+      "adminPassword": "admin123",
+      "createdAt": "2026-07-20T17:39:00.191Z",
+      "updatedAt": "2026-07-21T07:42:55.018Z"
+    }
+  ]
+}

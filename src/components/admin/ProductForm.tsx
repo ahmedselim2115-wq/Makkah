@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { X, Save, Loader2 } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { X, Save, Loader2, Upload, ImageIcon, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -21,6 +21,9 @@ const CATEGORIES = ['ثلاجات تجارية', 'ثلاجات عرض', 'فري�
 
 export function ProductForm({ product, onClose, onSaved }: ProductFormProps) {
   const [loading, setLoading] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -53,6 +56,49 @@ export function ProductForm({ product, onClose, onSaved }: ProductFormProps) {
 
   const handleChange = (field: string, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('الرجاء اختيار ملف صورة صالح')
+      return
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('حجم الصورة كبير جدًا، الحد الأقصى 5 ميجابايت')
+      return
+    }
+
+    setUploading(true)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: fd,
+      })
+
+      const data = await res.json()
+
+      if (res.ok) {
+        handleChange('imageUrl', data.url)
+        toast.success('تم رفع الصورة بنجاح')
+      } else {
+        toast.error(data.error || 'حدث خطأ أثناء رفع الصورة')
+      }
+    } catch (error) {
+      toast.error('حدث خطأ أثناء رفع الصورة')
+    } finally {
+      setUploading(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
+
+  const handleRemoveImage = () => {
+    handleChange('imageUrl', '')
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -165,27 +211,68 @@ export function ProductForm({ product, onClose, onSaved }: ProductFormProps) {
             </div>
           </div>
 
+          {/* رفع الصورة */}
           <div className="space-y-2">
-            <Label htmlFor="imageUrl">رابط الصورة</Label>
-            <Input
-              id="imageUrl"
-              type="url"
-              value={formData.imageUrl}
-              onChange={(e) => handleChange('imageUrl', e.target.value)}
-              placeholder="https://..."
-              dir="ltr"
+            <Label>صورة المنتج</Label>
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileSelect}
+              className="hidden"
             />
-            {formData.imageUrl && (
-              <div className="mt-2 aspect-video rounded-lg overflow-hidden bg-muted">
+
+            {formData.imageUrl ? (
+              <div className="relative aspect-video rounded-lg overflow-hidden bg-muted border">
                 <img
                   src={formData.imageUrl}
                   alt="معاينة"
                   className="w-full h-full object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none'
-                  }}
                 />
+                <div className="absolute inset-0 bg-black/0 hover:bg-black/40 transition-colors flex items-center justify-center gap-2 opacity-0 hover:opacity-100">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading}
+                  >
+                    <Upload className="w-4 h-4 ml-1" />
+                    تغيير
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="destructive"
+                    onClick={handleRemoveImage}
+                    disabled={uploading}
+                  >
+                    <Trash2 className="w-4 h-4 ml-1" />
+                    حذف
+                  </Button>
+                </div>
               </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="w-full aspect-video rounded-lg border-2 border-dashed border-muted-foreground/30 hover:border-primary hover:bg-muted/50 transition-colors flex flex-col items-center justify-center gap-2 text-muted-foreground"
+              >
+                {uploading ? (
+                  <>
+                    <Loader2 className="w-8 h-8 animate-spin" />
+                    <span className="text-sm">جاري الرفع...</span>
+                  </>
+                ) : (
+                  <>
+                    <ImageIcon className="w-8 h-8" />
+                    <span className="text-sm">اضغط لرفع صورة (JPG, PNG, WebP)</span>
+                    <span className="text-xs">الحد الأقصى 5 ميجابايت</span>
+                  </>
+                )}
+              </button>
             )}
           </div>
 
@@ -263,7 +350,7 @@ export function ProductForm({ product, onClose, onSaved }: ProductFormProps) {
           <Button
             type="submit"
             onClick={handleSubmit}
-            disabled={loading}
+            disabled={loading || uploading}
             className="flex-1 gradient-primary text-white"
           >
             {loading ? (
