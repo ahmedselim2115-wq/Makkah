@@ -1,12 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { v2 as cloudinary } from 'cloudinary'
+import { writeFile, mkdir } from 'fs/promises'
+import path from 'path'
+import { existsSync } from 'fs'
 import { getCurrentUser } from '@/lib/auth'
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-})
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024
 const MAX_VIDEO_SIZE = 50 * 1024 * 1024
@@ -52,15 +48,21 @@ export async function POST(req: NextRequest) {
 
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
-    const base64 = buffer.toString('base64')
-    const dataUri = `data:${file.type};base64,${base64}`
 
-    const result = await cloudinary.uploader.upload(dataUri, {
-      folder: isVideo ? 'makkah/videos' : 'makkah/images',
-      resource_type: isVideo ? 'video' : 'image',
-    })
+    const ext = path.extname(file.name) || (isVideo ? '.mp4' : '.jpg')
+    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}${ext}`
 
-    return NextResponse.json({ url: result.secure_url })
+    const subDir = isVideo ? 'videos' : 'images'
+    const uploadDir = path.join(process.cwd(), 'public', 'uploads', subDir)
+    if (!existsSync(uploadDir)) {
+      await mkdir(uploadDir, { recursive: true })
+    }
+
+    const filePath = path.join(uploadDir, fileName)
+    await writeFile(filePath, buffer)
+
+    const url = `/uploads/${subDir}/${fileName}`
+    return NextResponse.json({ url })
   } catch (error) {
     console.error('Error uploading file:', error)
     return NextResponse.json({ error: 'حدث خطأ أثناء رفع الملف' }, { status: 500 })
