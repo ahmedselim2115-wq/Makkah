@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Cairo, Tajawal } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 
 const cairo = Cairo({
   variable: "--font-cairo",
@@ -16,13 +18,13 @@ const tajawal = Tajawal({
 });
 
 export const metadata: Metadata = {
-  title: "مصنع مكة للثلاجات | روافد التبريد الحديثة",
+  title: "مصنع مكة للثلاجات |  التبريد الحديثة",
   description: "مصنع مكة للثلاجات - متخصصون في تصنيع الثلاجات التجارية والصناعية والمجوهرات التبريدية بأحدث التقنيات وأعلى معايير الجودة.",
   keywords: ["مصنع مكة", "ثلاجات", "ثلاجات تجارية", "ثلاجات صناعية", "تبريد", "مكة"],
   authors: [{ name: "مصنع مكة للثلاجات" }],
   openGraph: {
     title: "مصنع مكة للثلاجات",
-    description: "روافد التبريد الحديثة - حلول تبريد متكاملة",
+    description: " التبريد الحديثة - حلول تبريد متكاملة",
     type: "website",
     locale: "ar_SA",
   },
@@ -38,8 +40,12 @@ export default function RootLayout({
       <body
         className={`${cairo.variable} ${tajawal.variable} antialiased bg-background text-foreground font-tajawal`}
       >
-        {children}
-        <Toaster />
+        <LanguageProvider>
+          <AuthProvider>
+            {children}
+            <Toaster />
+          </AuthProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

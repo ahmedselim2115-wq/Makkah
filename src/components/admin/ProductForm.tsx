@@ -7,8 +7,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
+import { useAdminLanguage } from '@/contexts/AdminLanguageContext'
 import type { Product } from '@/lib/types'
 
 interface ProductFormProps {
@@ -16,40 +16,99 @@ interface ProductFormProps {
   onClose: () => void
   onSaved: () => void
 }
-
-const CATEGORIES = ['ثلاجات تجارية', 'ثلاجات عرض', 'فريزر', 'غرف تبريد', 'ثلاجات منزلية']
+function cleanText(text: string | null | undefined): string {
+  if (!text) return ''
+  return text
+    .replace(/[\u200B-\u200F\u202A-\u202E\uFEFF]/g, '')
+    .trim()
+    .normalize('NFC')
+}
 
 export function ProductForm({ product, onClose, onSaved }: ProductFormProps) {
+  const { t } = useAdminLanguage()
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  const [categories, setCategories] = useState<{ id: string; name: string; nameEn?: string | null }[]>([])
+  const [categoriesLoading, setCategoriesLoading] = useState(true)
+
   const [formData, setFormData] = useState({
     name: '',
+    nameEn: '',
     description: '',
+    descriptionEn: '',
     price: '',
+    compareAtPrice: '', // <--- أضفنا حقل السعر القديم هنا
     imageUrl: '',
-    category: 'ثلاجات تجارية',
+    category: '',
+    categoryEn: '',
     capacity: '',
+    capacityEn: '',
     temperature: '',
+    temperatureEn: '',
     power: '',
+    powerEn: '',
     featured: false,
     inStock: true,
+    showPrice: true,
   })
+
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        const res = await fetch('/api/categories')
+        const data = await res.json()
+        if (res.ok) {
+          let cats = (data.categories as { id: string; name: string; nameEn?: string | null }[]).map((c) => ({
+            ...c,
+            name: cleanText(c.name),
+          }))
+
+          const productCategoryClean = cleanText(product?.category)
+
+          if (productCategoryClean && !cats.some((c) => c.name === productCategoryClean)) {
+            cats = [{ id: '__current__', name: productCategoryClean, nameEn: product?.categoryEn || '' }, ...cats]
+          }
+
+          setCategories(cats)
+
+          if (!product && cats.length > 0) {
+            setFormData((prev) => ({
+              ...prev,
+              category: prev.category || cats[0].name,
+              categoryEn: prev.categoryEn || cats[0].nameEn || '',
+            }))
+          }
+        }
+      } finally {
+        setCategoriesLoading(false)
+      }
+    }
+    loadCategories()
+  }, [product])
 
   useEffect(() => {
     if (product) {
       setFormData({
         name: product.name,
+        nameEn: product.nameEn || '',
         description: product.description,
+        descriptionEn: product.descriptionEn || '',
         price: product.price.toString(),
+        compareAtPrice: product.compareAtPrice ? product.compareAtPrice.toString() : '', // <--- تعبئة السعر القديم عند التعديل
         imageUrl: product.imageUrl,
-        category: product.category,
+        category: cleanText(product.category),
+        categoryEn: product.categoryEn || '',
         capacity: product.capacity || '',
+        capacityEn: product.capacityEn || '',
         temperature: product.temperature || '',
+        temperatureEn: product.temperatureEn || '',
         power: product.power || '',
+        powerEn: product.powerEn || '',
         featured: product.featured,
         inStock: product.inStock,
+        showPrice: product.showPrice,
       })
     }
   }, [product])
@@ -58,16 +117,25 @@ export function ProductForm({ product, onClose, onSaved }: ProductFormProps) {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
+  const handleCategoryChange = (name: string) => {
+    const found = categories.find((c) => c.name === name)
+    setFormData((prev) => ({
+      ...prev,
+      category: name,
+      categoryEn: found?.nameEn || prev.categoryEn,
+    }))
+  }
+
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
     if (!file.type.startsWith('image/')) {
-      toast.error('الرجاء اختيار ملف صورة صالح')
+      toast.error(t('product_form_upload_invalid_type'))
       return
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('حجم الصورة كبير جدًا، الحد الأقصى 5 ميجابايت')
+      toast.error(t('product_form_upload_too_large'))
       return
     }
 
@@ -85,12 +153,12 @@ export function ProductForm({ product, onClose, onSaved }: ProductFormProps) {
 
       if (res.ok) {
         handleChange('imageUrl', data.url)
-        toast.success('تم رفع الصورة بنجاح')
+        toast.success(t('product_form_upload_success'))
       } else {
-        toast.error(data.error || 'حدث خطأ أثناء رفع الصورة')
+        toast.error(data.error || t('product_form_upload_error'))
       }
     } catch (error) {
-      toast.error('حدث خطأ أثناء رفع الصورة')
+      toast.error(t('product_form_upload_error'))
     } finally {
       setUploading(false)
       if (fileInputRef.current) fileInputRef.current.value = ''
@@ -105,7 +173,7 @@ export function ProductForm({ product, onClose, onSaved }: ProductFormProps) {
     e.preventDefault()
 
     if (!formData.name || !formData.description || !formData.price) {
-      toast.error('الرجاء ملء الحقول المطلوبة')
+      toast.error(t('product_form_validation'))
       return
     }
 
@@ -117,18 +185,22 @@ export function ProductForm({ product, onClose, onSaved }: ProductFormProps) {
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          price: Number(formData.price),
+          compareAtPrice: formData.compareAtPrice ? Number(formData.compareAtPrice) : null,
+        }),
       })
 
       if (res.ok) {
-        toast.success(product ? 'تم تحديث المنتج بنجاح' : 'تم إضافة المنتج بنجاح')
+        toast.success(product ? t('product_form_success_edit') : t('product_form_success_add'))
         onSaved()
       } else {
         const data = await res.json()
-        toast.error(data.error || 'حدث خطأ')
+        toast.error(data.error || t('admin_error'))
       }
     } catch (error) {
-      toast.error('حدث خطأ، حاول مرة أخرى')
+      toast.error(t('admin_error_retry'))
     } finally {
       setLoading(false)
     }
@@ -137,48 +209,74 @@ export function ProductForm({ product, onClose, onSaved }: ProductFormProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
-        {/* الرأس */}
         <div className="flex items-center justify-between p-6 border-b bg-muted/30">
           <h2 className="text-xl font-bold">
-            {product ? 'تعديل المنتج' : 'إضافة منتج جديد'}
+            {product ? t('product_form_edit_title') : t('product_form_add_title')}
           </h2>
           <button
             onClick={onClose}
             className="w-9 h-9 rounded-lg hover:bg-muted flex items-center justify-center transition-colors"
-            aria-label="إغلاق"
+            aria-label={t('admin_close')}
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* النموذج */}
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">اسم المنتج *</Label>
-            <Input
-              id="name"
-              value={formData.name}
-              onChange={(e) => handleChange('name', e.target.value)}
-              placeholder="مثال: ثلاجة عرض تجارية 1200 لتر"
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="description">الوصف *</Label>
-            <Textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => handleChange('description', e.target.value)}
-              placeholder="وصف تفصيلي للمنتج ومميزاته"
-              rows={4}
-              required
-            />
-          </div>
-
+          {/* الاسم - عربي/إنجليزي جنب بعض */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="price">السعر (ر.س) *</Label>
+              <Label htmlFor="name">{t('product_form_name_ar')}</Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) => handleChange('name', e.target.value)}
+                placeholder="مثال: ثلاجة عرض تجارية 1200 لتر"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="nameEn">{t('product_form_name_en')}</Label>
+              <Input
+                id="nameEn"
+                value={formData.nameEn}
+                onChange={(e) => handleChange('nameEn', e.target.value)}
+                placeholder="e.g. 1200L Commercial Display Fridge"
+                dir="ltr"
+              />
+            </div>
+          </div>
+
+          {/* الوصف - عربي/إنجليزي جنب بعض */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="description">{t('product_form_desc_ar')}</Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => handleChange('description', e.target.value)}
+                placeholder="وصف تفصيلي للمنتج ومميزاته"
+                rows={4}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="descriptionEn">{t('product_form_desc_en')}</Label>
+              <Textarea
+                id="descriptionEn"
+                value={formData.descriptionEn}
+                onChange={(e) => handleChange('descriptionEn', e.target.value)}
+                placeholder="Detailed product description and features"
+                rows={4}
+                dir="ltr"
+              />
+            </div>
+          </div>
+
+          {/* الأسعار (السعر الحالي وسعر الخصم القديم) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="price">{t('product_form_price')}</Label>
               <Input
                 id="price"
                 type="number"
@@ -192,28 +290,51 @@ export function ProductForm({ product, onClose, onSaved }: ProductFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="category">الفئة</Label>
-              <Select
+            <Label>{t('product_form_compare_at_price')}</Label>
+            <Input
+              type="number"
+              value={formData.compareAtPrice}
+              onChange={(e) => handleChange('compareAtPrice', e.target.value)}
+              placeholder="e.g. 1500"
+            />
+          </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="category">{t('product_form_category')}</Label>
+              <select
+                id="category"
                 value={formData.category}
-                onValueChange={(value) => handleChange('category', value)}
+                onChange={(e) => handleCategoryChange(e.target.value)}
+                disabled={categoriesLoading}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="اختر الفئة" />
-                </SelectTrigger>
-                <SelectContent>
-                  {CATEGORIES.map((cat) => (
-                    <SelectItem key={cat} value={cat}>
-                      {cat}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                <option value="" disabled>
+                  {categoriesLoading ? t('product_form_category_loading') : t('product_form_category_select')}
+                </option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.name}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="categoryEn">{t('product_form_category_en')}</Label>
+              <Input
+                id="categoryEn"
+                value={formData.categoryEn}
+                onChange={(e) => handleChange('categoryEn', e.target.value)}
+                placeholder="e.g. Refrigerators"
+                dir="ltr"
+              />
             </div>
           </div>
 
-          {/* رفع الصورة */}
           <div className="space-y-2">
-            <Label>صورة المنتج</Label>
+            <Label>{t('product_form_image')}</Label>
 
             <input
               ref={fileInputRef}
@@ -239,7 +360,7 @@ export function ProductForm({ product, onClose, onSaved }: ProductFormProps) {
                     disabled={uploading}
                   >
                     <Upload className="w-4 h-4 ml-1" />
-                    تغيير
+                    {t('product_form_image_change')}
                   </Button>
                   <Button
                     type="button"
@@ -249,7 +370,7 @@ export function ProductForm({ product, onClose, onSaved }: ProductFormProps) {
                     disabled={uploading}
                   >
                     <Trash2 className="w-4 h-4 ml-1" />
-                    حذف
+                    {t('product_form_image_delete')}
                   </Button>
                 </div>
               </div>
@@ -263,22 +384,22 @@ export function ProductForm({ product, onClose, onSaved }: ProductFormProps) {
                 {uploading ? (
                   <>
                     <Loader2 className="w-8 h-8 animate-spin" />
-                    <span className="text-sm">جاري الرفع...</span>
+                    <span className="text-sm">{t('product_form_image_uploading')}</span>
                   </>
                 ) : (
                   <>
                     <ImageIcon className="w-8 h-8" />
-                    <span className="text-sm">اضغط لرفع صورة (JPG, PNG, WebP)</span>
-                    <span className="text-xs">الحد الأقصى 5 ميجابايت</span>
+                    <span className="text-sm">{t('product_form_image_upload_hint')}</span>
+                    <span className="text-xs">{t('product_form_image_upload_max')}</span>
                   </>
                 )}
               </button>
             )}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="capacity">السعة</Label>
+              <Label htmlFor="capacity">{t('product_form_capacity_ar')}</Label>
               <Input
                 id="capacity"
                 value={formData.capacity}
@@ -287,7 +408,20 @@ export function ProductForm({ product, onClose, onSaved }: ProductFormProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="temperature">درجة الحرارة</Label>
+              <Label htmlFor="capacityEn">{t('product_form_capacity_en')}</Label>
+              <Input
+                id="capacityEn"
+                value={formData.capacityEn}
+                onChange={(e) => handleChange('capacityEn', e.target.value)}
+                placeholder="e.g. 1200 L"
+                dir="ltr"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="temperature">{t('product_form_temp_ar')}</Label>
               <Input
                 id="temperature"
                 value={formData.temperature}
@@ -296,12 +430,35 @@ export function ProductForm({ product, onClose, onSaved }: ProductFormProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="power">الاستطاقة</Label>
+              <Label htmlFor="temperatureEn">{t('product_form_temp_en')}</Label>
+              <Input
+                id="temperatureEn"
+                value={formData.temperatureEn}
+                onChange={(e) => handleChange('temperatureEn', e.target.value)}
+                placeholder="e.g. +2 to +8"
+                dir="ltr"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="power">{t('product_form_power_ar')}</Label>
               <Input
                 id="power"
                 value={formData.power}
                 onChange={(e) => handleChange('power', e.target.value)}
                 placeholder="مثال: 450 واط"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="powerEn">{t('product_form_power_en')}</Label>
+              <Input
+                id="powerEn"
+                value={formData.powerEn}
+                onChange={(e) => handleChange('powerEn', e.target.value)}
+                placeholder="e.g. 450 W"
+                dir="ltr"
               />
             </div>
           </div>
@@ -310,23 +467,39 @@ export function ProductForm({ product, onClose, onSaved }: ProductFormProps) {
             <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50">
               <div>
                 <Label htmlFor="featured" className="font-medium cursor-pointer">
-                  منتج مميز
+                  {t('product_form_featured')}
                 </Label>
-                <p className="text-xs text-muted-foreground">يظهر في المقدمة</p>
+                <p className="text-xs text-muted-foreground">{t('product_form_featured_hint')}</p>
               </div>
               <Switch
                 id="featured"
                 checked={formData.featured}
                 onCheckedChange={(checked) => handleChange('featured', checked)}
+                className="data-[state=checked]:bg-emerald-600 data-[state=unchecked]:bg-gray-300"
               />
+            </div>
+            <div className="pt-2">
+              <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50">
+                <div>
+                  <Label htmlFor="showPrice" className="font-medium cursor-pointer">
+                    {t('product_form_show_price')}
+                  </Label>
+                  <p className="text-xs text-muted-foreground">{t('product_form_show_price_hint')}</p>
+                </div>
+                <Switch
+                  id="showPrice"
+                  checked={formData.showPrice}
+                  onCheckedChange={(checked) => handleChange('showPrice', checked)}
+                />
+              </div>
             </div>
 
             <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50">
               <div>
                 <Label htmlFor="inStock" className="font-medium cursor-pointer">
-                  متوفر في المخزن
+                  {t('product_form_in_stock')}
                 </Label>
-                <p className="text-xs text-muted-foreground">جاهز للبيع</p>
+                <p className="text-xs text-muted-foreground">{t('product_form_in_stock_hint')}</p>
               </div>
               <Switch
                 id="inStock"
@@ -337,7 +510,6 @@ export function ProductForm({ product, onClose, onSaved }: ProductFormProps) {
           </div>
         </form>
 
-        {/* الأزرار */}
         <div className="flex gap-3 p-6 border-t bg-muted/30">
           <Button
             type="button"
@@ -345,7 +517,7 @@ export function ProductForm({ product, onClose, onSaved }: ProductFormProps) {
             onClick={onClose}
             className="flex-1"
           >
-            إلغاء
+            {t('admin_cancel')}
           </Button>
           <Button
             type="submit"
@@ -356,12 +528,12 @@ export function ProductForm({ product, onClose, onSaved }: ProductFormProps) {
             {loading ? (
               <>
                 <Loader2 className="w-4 h-4 ml-2 animate-spin" />
-                جاري الحفظ...
+                {t('admin_saving')}
               </>
             ) : (
               <>
                 <Save className="w-4 h-4 ml-2" />
-                {product ? 'حفظ التغييرات' : 'إضافة المنتج'}
+                {product ? t('admin_save') : t('product_form_add_title')}
               </>
             )}
           </Button>

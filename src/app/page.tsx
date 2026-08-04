@@ -3,12 +3,15 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Navbar } from '@/components/site/Navbar'
 import { Hero } from '@/components/site/Hero'
+import ShowcaseSection from '@/components/site/ShowcaseSection'
 import { ProductsSection } from '@/components/site/ProductsSection'
 import { AboutSection } from '@/components/site/AboutSection'
 import { ContactSection } from '@/components/site/ContactSection'
 import { Footer } from '@/components/site/Footer'
 import { AdminPanel } from '@/components/admin/AdminPanel'
+import { AdminLanguageProvider } from '@/contexts/AdminLanguageContext'
 import type { Product, SiteSettings } from '@/lib/types'
+import { WhatsAppWidget } from '@/components/site/WhatsAppWidget'
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([])
@@ -81,23 +84,29 @@ export default function Home() {
             </div>
           </div>
         ) : (
-          <>
-            <Hero settings={settings} />
-            <ProductsSection products={products} />
-            <AboutSection settings={settings} />
-            <ContactSection settings={settings} />
-          </>
+         <>
+          <Hero settings={settings} />
+          
+          <ProductsSection products={products} settings={settings} />
+          <AboutSection settings={settings} />
+          <ShowcaseSection settings={settings} />
+          <ContactSection settings={settings} />
+        </>
         )}
       </main>
 
       <Footer settings={settings} onAdminClick={() => setShowAdmin(true)} />
 
       {showAdmin && (
-        <AdminPanel
-          onClose={() => setShowAdmin(false)}
-          onSiteUpdate={handleSiteUpdate}
-        />
+        <AdminLanguageProvider>
+          <AdminPanel
+            onClose={() => setShowAdmin(false)}
+            onSiteUpdate={handleSiteUpdate}
+          />
+        </AdminLanguageProvider>
       )}
+
+      {!showAdmin && <WhatsAppWidget settings={settings} />}
     </div>
   )
 }

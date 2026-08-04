@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Menu, X, Snowflake } from 'lucide-react'
+import { Menu, X, Globe } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 interface NavbarProps {
   onAdminClick: () => void
@@ -11,6 +12,7 @@ interface NavbarProps {
 export function Navbar({ onAdminClick }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const { t, locale, setLocale } = useLanguage()
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20)
@@ -19,16 +21,20 @@ export function Navbar({ onAdminClick }: NavbarProps) {
   }, [])
 
   const navLinks = [
-    { href: '#home', label: 'الرئيسية' },
-    { href: '#products', label: 'المنتجات' },
-    { href: '#about', label: 'من نحن' },
-    { href: '#contact', label: 'تواصل معنا' },
+    { href: '#home', label: t('nav_home') },
+    { href: '#products', label: t('nav_products') },
+    { href: '#about', label: t('nav_about') },
+    { href: '#contact', label: t('nav_contact') },
   ]
 
   const scrollToSection = (href: string) => {
     setIsOpen(false)
     const element = document.querySelector(href)
     element?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  const toggleLanguage = () => {
+    setLocale(locale === 'ar' ? 'en' : 'ar')
   }
 
   return (
@@ -43,14 +49,18 @@ export function Navbar({ onAdminClick }: NavbarProps) {
         <div className="flex items-center justify-between">
           {/* الشعار */}
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl gradient-primary flex items-center justify-center shadow-lg">
-              <Snowflake className="w-6 h-6 text-white" />
+            <div className="w-[60px] h-[60px] rounded-[20px] bg-white shadow-sm border border-gray-50 overflow-hidden flex-shrink-0">
+              <img
+                src="/logo.png"
+                alt={t('company_name')}
+                className="w-full h-full object-contain"
+              />
             </div>
             <div>
               <h1 className="font-display font-bold text-lg leading-tight text-foreground">
-                مصنع مكة للثلاجات
+                {t('company_name')}
               </h1>
-              <p className="text-xs text-muted-foreground">روافد التبريد الحديثة</p>
+              <p className="text-xs text-muted-foreground">{t('company_tagline')}</p>
             </div>
           </div>
 
@@ -65,11 +75,18 @@ export function Navbar({ onAdminClick }: NavbarProps) {
                 {link.label}
               </button>
             ))}
+            <button
+              onClick={toggleLanguage}
+              className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-foreground hover:text-primary hover:bg-accent rounded-lg transition-colors mr-1"
+            >
+              <Globe className="w-4 h-4" />
+              {t('lang_switch')}
+            </button>
             <Button
               onClick={() => scrollToSection('#products')}
               className="mr-2 gradient-primary text-white hover:opacity-90"
             >
-              تصفح المنتجات
+              {t('nav_browse')}
             </Button>
           </nav>
 
@@ -77,7 +94,7 @@ export function Navbar({ onAdminClick }: NavbarProps) {
           <button
             className="md:hidden p-2 rounded-lg hover:bg-accent transition-colors"
             onClick={() => setIsOpen(!isOpen)}
-            aria-label="القائمة"
+            aria-label="Menu"
           >
             {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -95,11 +112,18 @@ export function Navbar({ onAdminClick }: NavbarProps) {
                 {link.label}
               </button>
             ))}
+            <button
+              onClick={toggleLanguage}
+              className="flex items-center gap-2 px-4 py-3 text-sm font-medium text-foreground hover:text-primary hover:bg-accent rounded-lg transition-colors"
+            >
+              <Globe className="w-4 h-4" />
+              {t('lang_switch')}
+            </button>
             <Button
               onClick={() => scrollToSection('#products')}
               className="mt-2 gradient-primary text-white"
             >
-              تصفح المنتجات
+              {t('nav_browse')}
             </Button>
           </nav>
         )}

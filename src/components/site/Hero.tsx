@@ -1,14 +1,59 @@
 'use client'
 
-import { Snowflake, ShieldCheck, Zap, Award, ArrowLeft } from 'lucide-react'
+import { useEffect, useState, useCallback } from 'react'
+import { ArrowLeft, ChevronRight, ChevronLeft, Pause, Play } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import type { SiteSettings } from '@/lib/types'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 interface HeroProps {
   settings: SiteSettings | null
 }
 
+const SLIDE_INTERVAL_MS = 5000
+
 export function Hero({ settings }: HeroProps) {
+  const { t, locale } = useLanguage()
+
+  const images: string[] =
+    (settings as unknown as { heroImages?: string[] })?.heroImages?.filter(Boolean) ??
+    (settings?.heroImage ? [settings.heroImage] : [])
+
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(true)
+  const [progress, setProgress] = useState(0)
+
+  const goToNext = useCallback(() => {
+    setCurrentIndex((prev) => (images.length ? (prev + 1) % images.length : 0))
+  }, [images.length])
+
+  const goToPrev = useCallback(() => {
+    setCurrentIndex((prev) => (images.length ? (prev - 1 + images.length) % images.length : 0))
+  }, [images.length])
+
+  useEffect(() => {
+    if (images.length <= 1 || !isPlaying) return
+    const timer = setInterval(goToNext, SLIDE_INTERVAL_MS)
+    return () => clearInterval(timer)
+  }, [images.length, isPlaying, goToNext])
+
+  useEffect(() => {
+    setProgress(0)
+    if (images.length <= 1 || !isPlaying) return
+
+    const stepMs = 50
+    const steps = SLIDE_INTERVAL_MS / stepMs
+    let current = 0
+
+    const progressTimer = setInterval(() => {
+      current += 1
+      setProgress((current / steps) * 100)
+      if (current >= steps) current = 0
+    }, stepMs)
+
+    return () => clearInterval(progressTimer)
+  }, [currentIndex, images.length, isPlaying])
+
   const scrollToProducts = () => {
     document.querySelector('#products')?.scrollIntoView({ behavior: 'smooth' })
   }
@@ -17,126 +62,102 @@ export function Hero({ settings }: HeroProps) {
     document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' })
   }
 
-  const features = [
-    { icon: ShieldCheck, title: 'جودة مضمونة', text: 'ضمان شامل على جميع المنتجات' },
-    { icon: Zap, title: 'كفاءة عالية', text: 'استهلاك اقتصادي للطاقة' },
-    { icon: Award, title: 'خبرة واسعة', text: 'سنوات من التميز في التبريد' },
-  ]
-
   return (
     <section
       id="home"
-      className="relative min-h-screen flex items-center gradient-mesh overflow-hidden pt-24 pb-12"
+      className="relative min-h-[70vh] sm:min-h-[85vh] md:min-h-screen flex items-center overflow-hidden pt-16 md:pt-20"
     >
-      {/* خلفية زخرفية */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 -right-32 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 -left-32 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
+      <div className="absolute inset-0 z-0">
+        {images.length > 0 ? (
+          images.map((src, idx) => (
+            <img
+              key={src + idx}
+              src={src}
+              alt=""
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
+                idx === currentIndex ? 'opacity-100' : 'opacity-0'
+              }`}
+            />
+          ))
+        ) : (
+          <div className="w-full h-full gradient-primary" />
+        )}
+
+        <div className="absolute inset-0 bg-gradient-to-l from-foreground/95 via-foreground/70 to-foreground/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent" />
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* النص */}
-          <div className="space-y-6 text-center lg:text-right">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
-              <Snowflake className="w-4 h-4" />
-              <span>الرائدة في صناعة الثلاجات</span>
-            </div>
+        <div className={`max-w-2xl space-y-4 md:space-y-6 ${locale === 'en' ? 'text-left' : 'text-right'}`}>
+         <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold leading-tight text-white">
+            {(locale === 'en' ? settings?.heroTitleEn : settings?.heroTitle) || t('hero_default_title')}
+          </h1>
 
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-              <span className="text-gradient">
-                {settings?.heroTitle || 'مصنع مكة للثلاجات'}
-              </span>
-            </h1>
+          <p className={`text-sm sm:text-base md:text-xl text-white/80 leading-relaxed max-w-xl ${locale === 'en' ? 'ml-0' : 'mr-0'}`}>
+            {(locale === 'en' ? settings?.heroSubtitleEn : settings?.heroSubtitle) || t('hero_default_subtitle')}
+          </p>
 
-            <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto lg:mr-0">
-              {settings?.heroSubtitle ||
-                'روافد التبريد الحديثة - حلول تبريد متكاملة لكل القطاعات'}
-            </p>
+          <div className="flex flex-wrap items-center gap-3 md:gap-4">
+            <Button
+              size="lg"
+              onClick={scrollToProducts}
+              className="gradient-primary text-white hover:opacity-90 text-sm sm:text-base md:text-lg px-5 sm:px-7 md:px-10 py-4 md:py-6 rounded-full"
+            >
+              {t('hero_browse_products')}
+              <ArrowLeft className={`w-4 h-4 md:w-5 md:h-5 ${locale === 'en' ? 'ml-2 rotate-180' : 'mr-2'}`} />
+            </Button>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Button
-                size="lg"
-                onClick={scrollToProducts}
-                className="gradient-primary text-white hover:opacity-90 text-lg px-8 py-6"
-              >
-                تصفح المنتجات
-                <ArrowLeft className="w-5 h-5 mr-2" />
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={scrollToContact}
-                className="text-lg px-8 py-6 border-primary text-primary hover:bg-primary/5"
-              >
-                تواصل معنا
-              </Button>
-            </div>
-
-            {/* المميزات */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-8">
-              {features.map((feature, idx) => (
-                <div
-                  key={idx}
-                  className="flex flex-col sm:flex-row items-center sm:items-start gap-3 p-4 rounded-xl bg-white/70 backdrop-blur-sm border border-primary/10 text-center sm:text-right"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <feature.icon className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-sm mb-1">{feature.title}</h3>
-                    <p className="text-xs text-muted-foreground">{feature.text}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* الصورة / الرسم */}
-          <div className="relative">
-            <div className="relative aspect-square max-w-lg mx-auto">
-              {/* دائرة الخلفية */}
-              <div className="absolute inset-0 gradient-primary rounded-full opacity-20 blur-2xl" />
-
-              {/* البطاقة الرئيسية */}
-              <div className="relative w-full h-full">
-                {settings?.heroImage ? (
-                  <img
-                    src={settings.heroImage}
-                    alt="مصنع مكة للثلاجات"
-                    className="w-full h-full object-cover rounded-3xl shadow-2xl"
-                  />
-                ) : (
-                  <div className="w-full h-full rounded-3xl gradient-primary flex items-center justify-center shadow-2xl">
-                    <Snowflake className="w-48 h-48 text-white/90" strokeWidth={1} />
-                  </div>
-                )}
-              </div>
-
-              {/* بطاقات عائمة */}
-              <div className="absolute -top-4 -left-4 bg-white rounded-2xl shadow-xl p-4 flex items-center gap-3 max-w-[200px]">
-                <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
-                  <ShieldCheck className="w-6 h-6 text-green-600" />
-                </div>
-                <div>
-                  <p className="font-bold text-sm">ضمان</p>
-                  <p className="text-xs text-muted-foreground">من سنتين إلى 5 سنوات</p>
-                </div>
-              </div>
-
-              <div className="absolute -bottom-4 -right-4 bg-white rounded-2xl shadow-xl p-4 flex items-center gap-3 max-w-[220px]">
-                <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center">
-                  <Award className="w-6 h-6 text-amber-600" />
-                </div>
-                <div>
-                  <p className="font-bold text-sm">شهادات الجودة</p>
-                  <p className="text-xs text-muted-foreground">معايير ISO و CE</p>
-                </div>
-              </div>
-            </div>
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={scrollToContact}
+              className="text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-4 md:py-6 rounded-full bg-white/10 backdrop-blur-sm border-white/40 text-white hover:bg-white/20 hover:text-white"
+            >
+              {t('hero_contact_us')}
+            </Button>
           </div>
         </div>
       </div>
+
+      {images.length > 1 && (
+        <div className="absolute bottom-0 left-0 right-0 z-10">
+          <div className="px-4 md:px-8 pt-4">
+            <div className="w-full h-px rounded-full bg-white/10 overflow-hidden">
+              <div
+                className="h-full bg-white/40 rounded-full"
+                style={{
+                  width: `${progress}%`,
+                }}
+              />
+            </div>
+          </div>
+          <div className="flex items-center justify-center gap-6 py-4">
+            <button
+              onClick={goToNext}
+              aria-label={t('hero_next_image')}
+              className="text-white/80 hover:text-white transition-colors"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+            <span className="w-px h-4 bg-white/30" />
+            <button
+              onClick={() => setIsPlaying((p) => !p)}
+              aria-label={isPlaying ? t('hero_pause') : t('hero_play')}
+              className="text-white/80 hover:text-white transition-colors"
+            >
+              {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+            </button>
+            <span className="w-px h-4 bg-white/30" />
+            <button
+              onClick={goToPrev}
+              aria-label={t('hero_prev_image')}
+              className="text-white/80 hover:text-white transition-colors"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      )}
     </section>
   )
 }

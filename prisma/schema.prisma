@@ -11,37 +11,168 @@ datasource db {
 }
 
 model Product {
-  id          String   @id @default(cuid())
-  name        String
-  description String
-  price       Float
-  imageUrl    String
-  category    String   @default("ثلاجات")
-  capacity    String?
-  temperature String?
-  power       String?
-  featured    Boolean  @default(false)
-  inStock     Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            String   @id @default(cuid())
+  name          String
+  nameEn        String?  // English
+  description   String
+  descriptionEn String?  // English
+  price         Float
+  compareAtPrice Float?
+  imageUrl      String
+  category      String   @default("ثلاجات")
+  categoryEn    String?  // English (نخزنها هنا بدل ما نعمل join كل مرة)
+  capacity      String?
+  capacityEn    String?  // English
+  temperature   String?
+  temperatureEn String?  // English
+  power         String?
+  powerEn       String?  // English
+  featured      Boolean  @default(false)
+  inStock       Boolean  @default(true)
+  showPrice     Boolean  @default(true)
+  orders        Order[]
+  ratings       Rating[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model SiteSettings {
-  id            String   @id @default(cuid())
-  heroTitle     String   @default("مصنع مكة للثلاجات")
-  heroSubtitle  String   @default("روافد التبريد الحديثة")
-  heroImage     String   @default("")
-  aboutTitle    String   @default("من نحن")
-  aboutText     String   @default("مصنع مكة للثلاجات هو مصنع رائد في تصنيع الثلاجات التجارية والصناعية")
-  aboutImage    String   @default("")
-  phone         String   @default("")
-  email         String   @default("")
-  address       String   @default("")
-  workingHours  String   @default("السبت - الخميس: 9 صباحاً - 6 مساءً")
-  facebook      String   @default("")
-  instagram     String   @default("")
-  whatsapp      String   @default("")
-  adminPassword String   @default("admin123")
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id                       String   @id @default(cuid())
+  heroTitle                String   @default("مصنع مكة للثلاجات")
+  heroTitleEn              String?  // English
+  heroSubtitle             String   @default(" التبريد الحديثة")
+  heroSubtitleEn           String?  // English
+  heroImage                String   @default("")
+  heroImages               String?  @db.Text
+  aboutTitle               String   @default("من نحن")
+  aboutTitleEn             String?  // English
+  aboutText                String   @default("مصنع مكة للثلاجات هو مصنع رائد في تصنيع الثلاجات التجارية والصناعية")
+  aboutTextEn              String?  @db.Text // English
+  aboutImage               String   @default("")
+  aboutVideo               String?  @db.Text
+  aboutHeadingHighlight    String   @default("مصنع متكامل")
+  aboutHeadingHighlightEn  String?  // English
+  aboutHeadingRest         String   @default("لتصنيع حلول التبريد")
+  aboutHeadingRestEn       String?  // English
+  aboutPoints              String?  @db.Text
+  aboutPointsEn            String?  @db.Text // English (JSON array of strings)
+  aboutStats               String?  @db.Text
+  aboutStatsEn             String?  @db.Text // English (JSON array of {value,label})
+  productsBadge            String   @default("منتجاتنا")
+  productsBadgeEn          String?  // English
+  productsHeadingRest      String   @default("تشكيلتنا من")
+  productsHeadingRestEn    String?  // English
+  productsHeadingHighlight String   @default("الثلاجات والفريزرات")
+  productsHeadingHighlightEn String? // English
+  productsText             String?  @db.Text
+  productsTextEn           String?  @db.Text // English
+  phone                    String   @default("")
+  email                    String   @default("")
+  address                  String   @default("")
+  workingHours             String   @default("السبت - الخميس: 9 صباحاً - 6 مساءً")
+  workingHoursEn           String?  // English
+  facebook                 String   @default("")
+  instagram                String   @default("")
+   tiktok      String @default("")  
+  whatsapp                 String   @default("")
+  whatsappWidgetEnabled    Boolean  @default(true)
+  whatsappWelcomeMessage   String   @default("مرحباً بك! كيف يمكننا مساعدتك اليوم؟")
+  whatsappWelcomeMessageEn String?  // English
+  mapLocation              String?  @db.Text
+  showcaseTitle             String   @default("استكشف منتجاتنا")
+  showcaseTitleEn           String?  // English
+  showcaseSubtitle          String   @default("تنقل بين المنتجات، وحرّك الماوس لاستكشاف التفاصيل عن قرب")
+  showcaseSubtitleEn        String?  // English
+  adminPassword            String   @default("admin123")
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  nameEn    String?  // English
+  createdAt DateTime @default(now())
+}
+
+model User {
+  id           String       @id @default(cuid())
+  name         String
+  email        String       @unique
+  password     String
+  isActive     Boolean      @default(true)
+  isSuperAdmin Boolean      @default(false)
+  permissions  Permission[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+model Permission {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  key    String
+
+  @@unique([userId, key])
+}
+
+model ShowcaseProduct {
+  id        String            @id @default(cuid())
+  name      String
+  nameEn    String?           // English
+  image     String
+  order     Int               @default(0)
+  isActive  Boolean           @default(true)
+  hotspots  ShowcaseHotspot[]
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  @@map("showcase_products")
+}
+
+model ShowcaseHotspot {
+  id                String          @id @default(cuid())
+  showcaseProductId String
+  showcaseProduct   ShowcaseProduct @relation(fields: [showcaseProductId], references: [id], onDelete: Cascade)
+  title             String
+  titleEn           String?         // English
+  description       String
+  descriptionEn     String?         // English
+  icon              String?
+  positionX         Float
+  positionY         Float
+  order             Int             @default(0)
+
+  @@map("showcase_hotspots")
+}
+
+model Order {
+  id           String   @id @default(cuid())
+  productId    String?
+  product      Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productName  String
+  customerName String
+  phone        String
+  address      String
+  notes        String?
+  status       String   @default("جديد")
+  source       String   @default("website")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("orders")
+}
+
+model Rating {
+  id           String   @id @default(cuid())
+  productId    String?
+  product      Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productName  String
+  customerName String
+  phone        String
+  value        Int
+  comment      String?
+  createdAt    DateTime @default(now())
+
+  @@map("ratings")
 }

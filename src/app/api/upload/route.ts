@@ -2,12 +2,22 @@ import { NextRequest, NextResponse } from 'next/server'
 import { writeFile, mkdir } from 'fs/promises'
 import path from 'path'
 import { existsSync } from 'fs'
+import { getCurrentUser } from '@/lib/auth'
 
-// Max image size (5 MB)
-const MAX_SIZE = 5 * 1024 * 1024
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+// حدود الحجم: 5 ميجا للصور، 50 ميجا للفيديو
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024
+const MAX_VIDEO_SIZE = 50 * 1024 * 1024
+
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/ogg']
+
+const ALLOWED_TYPES = [...ALLOWED_IMAGE_TYPES, ...ALLOWED_VIDEO_TYPES]
 
 export async function POST(req: NextRequest) {
+  const user = await getCurrentUser()
+  if (!user) {
+    return NextResponse.json({ error: 'غير مصرح' }, { status: 401 })
+  }
   try {
     const formData = await req.formData()
     const file = formData.get('file') as File | null
@@ -18,14 +28,21 @@ export async function POST(req: NextRequest) {
 
     if (!ALLOWED_TYPES.includes(file.type)) {
       return NextResponse.json(
-        { error: 'نوع الملف غير مدعوم، الرجاء رفع صورة (jpg, png, webp, gif)' },
+        { error: 'نوع الملف غير مدعوم، الرجاء رفع صورة (jpg, png, webp, gif) أو فيديو (mp4, webm, ogg)' },
         { status: 400 }
       )
     }
 
-    if (file.size > MAX_SIZE) {
+    const isVideo = ALLOWED_VIDEO_TYPES.includes(file.type)
+    const maxSize = isVideo ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE
+
+    if (file.size > maxSize) {
       return NextResponse.json(
-        { error: 'حجم الصورة كبير جدًا، الحد الأقصى 5 ميجابايت' },
+        {
+          error: isVideo
+            ? 'حجم الفيديو كبير جدًا، الحد الأقصى 50 ميجابايت'
+            : 'حجم الصورة كبير جدًا، الحد الأقصى 5 ميجابايت',
+        },
         { status: 400 }
       )
     }
@@ -33,11 +50,13 @@ export async function POST(req: NextRequest) {
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
 
-    // unique file name to avoid collisions
-    const ext = path.extname(file.name) || '.jpg'
+    // اسم ملف فريد لتجنب التعارض
+    const ext = path.extname(file.name) || (isVideo ? '.mp4' : '.jpg')
     const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}${ext}`
 
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads')
+    // نفصل الصور عن الفيديوهات في مجلدات مختلفة (اختياري لكن أنضف)
+    const subDir = isVideo ? 'videos' : 'images'
+    const uploadDir = path.join(process.cwd(), 'public', 'uploads', subDir)
     if (!existsSync(uploadDir)) {
       await mkdir(uploadDir, { recursive: true })
     }
@@ -45,10 +64,10 @@ export async function POST(req: NextRequest) {
     const filePath = path.join(uploadDir, fileName)
     await writeFile(filePath, buffer)
 
-    const url = `/uploads/${fileName}`
+    const url = `/uploads/${subDir}/${fileName}`
     return NextResponse.json({ url })
   } catch (error) {
-    console.error('Error uploading image:', error)
-    return NextResponse.json({ error: 'حدث خطأ أثناء رفع الصورة' }, { status: 500 })
+    console.error('Error uploading file:', error)
+    return NextResponse.json({ error: 'حدث خطأ أثناء رفع الملف' }, { status: 500 })
   }
 }
