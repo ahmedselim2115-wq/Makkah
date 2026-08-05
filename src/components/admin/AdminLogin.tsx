@@ -19,8 +19,12 @@ export function AdminLogin({ onClose, onLogin }: AdminLoginProps) {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const handleSubmit = async (e: React.FormEvent) => {
+ const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // لو الـ loading شغالة بالفعل، اخرج فوراً عشان ما يبعتش الطلب مرتين
+    if (loading) return 
+
     if (!email || !password) {
       toast.error(t('login_validation'))
       return
@@ -38,17 +42,16 @@ export function AdminLogin({ onClose, onLogin }: AdminLoginProps) {
 
       if (res.ok) {
         toast.success(t('login_success'))
-        onLogin()
+        onLogin() // انتقال مباشر بدون تكرار
       } else {
-        toast.error(data.error || t('login_error'))
+        toast.error(data.error || data.message || t('login_error'))
+        setLoading(false) // رجع الزرار لو فيه خطأ
       }
     } catch (error) {
       toast.error(t('admin_error_retry'))
-    } finally {
       setLoading(false)
     }
   }
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden">

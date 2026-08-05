@@ -10,14 +10,25 @@ import { ContactSection } from '@/components/site/ContactSection'
 import { Footer } from '@/components/site/Footer'
 import { AdminPanel } from '@/components/admin/AdminPanel'
 import { AdminLanguageProvider } from '@/contexts/AdminLanguageContext'
+import { useLanguage } from '@/contexts/LanguageContext'
 import type { Product, SiteSettings } from '@/lib/types'
 import { WhatsAppWidget } from '@/components/site/WhatsAppWidget'
 
 export default function Home() {
+  const { locale } = useLanguage()
   const [products, setProducts] = useState<Product[]>([])
   const [settings, setSettings] = useState<SiteSettings | null>(null)
   const [showAdmin, setShowAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
+
+  // تحديث عنوان التبويب في المتصفح تلقائياً حسب اللغة الحالية
+  useEffect(() => {
+    if (locale === 'en') {
+      document.title = "Makkah Refrigerators Factory "
+    } else {
+      document.title = "مصنع مكة للثلاجات "
+    }
+  }, [locale])
 
   const fetchProducts = useCallback(async () => {
     try {

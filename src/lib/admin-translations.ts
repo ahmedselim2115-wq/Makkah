@@ -14,7 +14,7 @@ export const adminTranslations = {
     admin_delete: 'حذف',
 
     // تسجيل الدخول
-    login_title: 'لوحة التحكم',
+    login_title: 'تسجيل الدخول',
     login_subtitle: 'مصنع مكة للثلاجات',
     login_email: 'البريد الإلكتروني',
     login_password: 'كلمة المرور',
@@ -330,7 +330,7 @@ export const adminTranslations = {
     admin_confirm_delete: 'Confirm Deletion',
     admin_delete: 'Delete',
 
-    login_title: 'Admin Panel',
+    login_title: 'Login',
     login_subtitle: 'Makkah Refrigerators Factory',
     login_email: 'Email',
     login_password: 'Password',

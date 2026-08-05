@@ -125,9 +125,12 @@ export function Footer({ settings, onAdminClick }: FooterProps) {
           <p className="text-sm text-background/60 text-center sm:text-right">
             © {currentYear} {t('company_name')}. {t('footer_rights')}.
           </p>
+          {/* تم إخفاء زر لوحة التحكم من هنا، وللدخول اكتب الرابط /admin مباشرة في المتصفح */}
+          {/* 
           <button onClick={onAdminClick} className="text-xs text-background/40 hover:text-background/70 transition-colors">
             {t('footer_admin_panel')}
-          </button>
+          </button> 
+          */}
         </div>
       </div>
     </footer>
