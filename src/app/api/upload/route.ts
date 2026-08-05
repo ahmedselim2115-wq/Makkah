@@ -67,4 +67,4 @@ export async function POST(req: NextRequest) {
     console.error('Error uploading file:', error)
     return NextResponse.json({ error: 'حدث خطأ أثناء رفع الملف' }, { status: 500 })
   }
-}
+} 
