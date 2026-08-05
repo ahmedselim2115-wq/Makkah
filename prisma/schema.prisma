@@ -73,7 +73,8 @@ model SiteSettings {
   workingHoursEn           String?  // English
   facebook                 String   @default("")
   instagram                String   @default("")
-   tiktok      String @default("")  
+  tiktok                   String @default("")  
+  telegram                 String   @default("")
   whatsapp                 String   @default("")
   whatsappWidgetEnabled    Boolean  @default(true)
   whatsappWelcomeMessage   String   @default("مرحباً بك! كيف يمكننا مساعدتك اليوم؟")
