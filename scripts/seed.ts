@@ -16,7 +16,7 @@ async function seed() {
         aboutImage: '',
         phone: '+966 12 345 6789',
         email: 'info@meccarefrigerators.com',
-        address: 'مكة المكرمة، المملكة العربية السعودية - المنطقة الصناعية',
+        address: '  المنطقة الصناعية',
         workingHours: 'السبت - الخميس: 9 صباحاً - 6 مساءً',
         facebook: 'https://facebook.com',
         instagram: 'https://instagram.com',

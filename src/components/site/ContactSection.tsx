@@ -23,9 +23,9 @@ export function ContactSection({ settings }: ContactSectionProps) {
   const { t } = useLanguage()
 
   const contactCards = [
-    { icon: Phone, title: t('contact_phone'), value: settings?.phone || '+966 12 345 6789', action: settings?.phone ? `tel:${settings.phone}` : undefined },
-    { icon: Mail, title: t('contact_email'), value: settings?.email || 'info@meccarefrigerators.com', action: settings?.email ? `mailto:${settings.email}` : undefined },
-    { icon: MapPin, title: t('contact_address'), value: settings?.address || 'مكة المكرمة، المملكة العربية السعودية' },
+    { icon: Phone, title: t('contact_phone'), value: settings?.phone || '+201097269353', action: settings?.phone ? `tel:${settings.phone}` : undefined },
+    { icon: Mail, title: t('contact_email'), value: settings?.email || 'mmakka718@gmail.com', action: settings?.email ? `mailto:${settings.email}` : undefined },
+    { icon: MapPin, title: t('contact_address'), value: settings?.address || 'محافظة الشرقية، مصر' },
     { icon: Clock, title: t('contact_working_hours'), value: settings?.workingHours || 'السبت - الخميس: 9 صباحاً - 6 مساءً' },
   ]
 
