@@ -107,15 +107,15 @@ export function Footer({ settings, onAdminClick }: FooterProps) {
             <ul className="space-y-3 text-sm text-background/70">
               <li className="flex items-start gap-2">
                 <Phone className="w-4 h-4 flex-shrink-0 mt-1" />
-                <span dir="ltr">{settings?.phone || '+966 12 345 6789'}</span>
+                <span dir="ltr">{settings?.phone || '+201097269353'}</span>
               </li>
               <li className="flex items-start gap-2">
                 <Mail className="w-4 h-4 flex-shrink-0 mt-1" />
-                <span>{settings?.email || 'info@meccarefrigerators.com'}</span>
+                <span>{settings?.email || 'mmakka718@gmail.com'}</span>
               </li>
               <li className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 flex-shrink-0 mt-1" />
-                <span>{settings?.address || 'مكة المكرمة، المملكة العربية السعودية'}</span>
+                <span>{settings?.address || 'محافظة الشرقية، مصر'}</span>
               </li>
             </ul>
           </div>

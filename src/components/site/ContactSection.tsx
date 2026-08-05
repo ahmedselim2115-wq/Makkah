@@ -32,7 +32,7 @@ export function ContactSection({ settings }: ContactSectionProps) {
   const mapQuery = settings?.mapLocation?.trim() || settings?.address?.trim() || 'مكة المكرمة، المملكة العربية السعودية'
   const mapEmbedUrl = useMemo(() => `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed`, [mapQuery])
 
-  return (
+  return ( 
     <section id="contact" className="py-20 bg-white">
       <div className="container mx-auto px-4">
         <div className="text-center max-w-3xl mx-auto mb-12">
