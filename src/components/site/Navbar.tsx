@@ -41,15 +41,15 @@ export function Navbar({ onAdminClick }: NavbarProps) {
     <header
       className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
         scrolled
-          ? 'bg-white/95 backdrop-blur-md shadow-md py-3'
-          : 'bg-white/80 backdrop-blur-sm py-5'
+          ? 'bg-white/95 backdrop-blur-md shadow-md py-2 md:py-3'
+          : 'bg-white/80 backdrop-blur-sm py-3 md:py-5'
       }`}
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between">
           {/* الشعار */}
-          <div className="flex items-center gap-3">
-            <div className="w-[60px] h-[60px] rounded-[20px] bg-white shadow-sm border border-gray-50 overflow-hidden flex-shrink-0">
+          <div className="flex items-center gap-2 md:gap-3">
+            <div className="w-[45px] h-[45px] md:w-[60px] md:h-[60px] rounded-[14px] md:rounded-[20px] bg-white shadow-sm border border-gray-50 overflow-hidden flex-shrink-0">
               <img
                 src="/logo.png"
                 alt={t('company_name')}
@@ -57,10 +57,10 @@ export function Navbar({ onAdminClick }: NavbarProps) {
               />
             </div>
             <div>
-              <h1 className="font-display font-bold text-lg leading-tight text-foreground">
+              <h1 className="font-display font-bold text-sm md:text-lg leading-tight text-foreground">
                 {t('company_name')}
               </h1>
-              <p className="text-xs text-muted-foreground">{t('company_tagline')}</p>
+              <p className="text-[10px] md:text-xs text-muted-foreground">{t('company_tagline')}</p>
             </div>
           </div>
 
@@ -92,7 +92,7 @@ export function Navbar({ onAdminClick }: NavbarProps) {
 
           {/* زر القائمة للجوال */}
           <button
-            className="md:hidden p-2 rounded-lg hover:bg-accent transition-colors"
+            className="md:hidden p-2 rounded-lg hover:bg-accent transition-colors text-foreground"
             onClick={() => setIsOpen(!isOpen)}
             aria-label="Menu"
           >
@@ -100,28 +100,28 @@ export function Navbar({ onAdminClick }: NavbarProps) {
           </button>
         </div>
 
-        {/* قائمة الجوال */}
+        {/* قائمة الجوال المنسدلة */}
         {isOpen && (
-          <nav className="md:hidden mt-4 pb-4 border-t pt-4 flex flex-col gap-1">
+          <nav className="md:hidden mt-3 pb-4 border-t pt-3 flex flex-col gap-1 bg-white/95 backdrop-blur-md rounded-b-2xl shadow-lg px-2">
             {navLinks.map((link) => (
               <button
                 key={link.href}
                 onClick={() => scrollToSection(link.href)}
-                className="px-4 py-3 text-right text-sm font-medium text-foreground hover:text-primary hover:bg-accent rounded-lg transition-colors"
+                className="px-4 py-2.5 text-right text-sm font-medium text-foreground hover:text-primary hover:bg-accent rounded-lg transition-colors"
               >
                 {link.label}
               </button>
             ))}
             <button
               onClick={toggleLanguage}
-              className="flex items-center gap-2 px-4 py-3 text-sm font-medium text-foreground hover:text-primary hover:bg-accent rounded-lg transition-colors"
+              className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-foreground hover:text-primary hover:bg-accent rounded-lg transition-colors"
             >
               <Globe className="w-4 h-4" />
               {t('lang_switch')}
             </button>
             <Button
               onClick={() => scrollToSection('#products')}
-              className="mt-2 gradient-primary text-white"
+              className="mt-2 w-full gradient-primary text-white"
             >
               {t('nav_browse')}
             </Button>
