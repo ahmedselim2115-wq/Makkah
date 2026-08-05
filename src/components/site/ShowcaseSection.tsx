@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, Plus, X, Edit, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Hotspot {
@@ -12,8 +12,8 @@ interface Hotspot {
   description: string;
   descriptionEn?: string | null;
   icon?: string | null;
-  positionX: number;
-  positionY: number;
+  positionX: number; // 0-100
+  positionY: number; // 0-100
 }
 
 interface ShowcaseProduct {
@@ -28,17 +28,9 @@ import type { SiteSettings } from "@/lib/types";
 
 interface ShowcaseSectionProps {
   settings?: SiteSettings | null;
-  isAdmin?: boolean; // خاصية لتفعيل وضع التعديل والإضافة
-  onEditProduct?: (product: ShowcaseProduct) => void;
-  onAddHotspot?: (productId: string, coords: { x: number; y: number }) => void;
 }
 
-export default function ShowcaseSection({ 
-  settings, 
-  isAdmin = false, 
-  onEditProduct,
-  onAddHotspot 
-}: ShowcaseSectionProps) {
+export default function ShowcaseSection({ settings }: ShowcaseSectionProps) {
   const { t, locale } = useLanguage();
   const isEn = locale === "en";
   const dir = isEn ? "ltr" : "rtl";
@@ -46,6 +38,7 @@ export default function ShowcaseSection({
   const [products, setProducts] = useState<ShowcaseProduct[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [activeHotspot, setActiveHotspot] = useState<string | null>(null);
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [loading, setLoading] = useState(true);
   const stageRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -87,6 +80,17 @@ export default function ShowcaseSection({
   const getDescription = (h: Hotspot) =>
     isEn && h.descriptionEn ? h.descriptionEn : h.description;
 
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!stageRef.current) return;
+    const rect = stageRef.current.getBoundingClientRect();
+    const px = (e.clientX - rect.left) / rect.width;
+    const py = (e.clientY - rect.top) / rect.height;
+    const rotateY = (px - 0.5) * 20;
+    const rotateX = (0.5 - py) * 14;
+    setTilt({ x: rotateX, y: rotateY });
+  };
+
+  const resetTilt = () => setTilt({ x: 0, y: 0 });
   const cardOrigin = useRef({ x: 0, y: 0 });
   const cardRef = useRef<HTMLDivElement>(null);
   const [lineEnd, setLineEnd] = useState({ x: 0, y: 0 });
@@ -128,13 +132,23 @@ export default function ShowcaseSection({
     };
     const handleDragEnd = () => setIsDragging(false);
 
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!isDragging) return;
+      const touch = e.touches[0];
+      handleDragMove({ clientX: touch.clientX, clientY: touch.clientY } as MouseEvent);
+    };
+
     if (isDragging) {
       window.addEventListener("mousemove", handleDragMove);
       window.addEventListener("mouseup", handleDragEnd);
+      window.addEventListener("touchmove", handleTouchMove);
+      window.addEventListener("touchend", handleDragEnd);
     }
     return () => {
       window.removeEventListener("mousemove", handleDragMove);
       window.removeEventListener("mouseup", handleDragEnd);
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchend", handleDragEnd);
     };
   }, [isDragging]);
 
@@ -154,21 +168,6 @@ export default function ShowcaseSection({
       y: y - stageRect.top,
     });
   }, [dragOffset, activeHotspot, activeProduct]);
-
-  // ميزة إضافة نقطة جديدة عند النقر في وضع الـ Admin
-  const handleStageClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isAdmin || !stageRef.current || !activeProduct) return;
-    // عدم تفعيل النقر إذا كان الهدف هو زر أو نقطة موجودة مسبقاً
-    if ((e.target as HTMLElement).closest("button")) return;
-
-    const rect = stageRef.current.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-
-    if (onAddHotspot) {
-      onAddHotspot(activeProduct.id, { x: parseFloat(x.toFixed(2)), y: parseFloat(y.toFixed(2)) });
-    }
-  };
 
   const goTo = (index: number) => {
     setActiveHotspot(null);
@@ -202,29 +201,28 @@ export default function ShowcaseSection({
       </div>
 
       <div className="relative w-full">
-        <div className="text-center mb-6 flex items-center justify-center gap-3">
+        <div className="text-center mb-6">
           <h3 className="text-xl md:text-2xl font-semibold text-white transition-all duration-300">
             {getName(activeProduct)}
           </h3>
-          {isAdmin && onEditProduct && (
-            <button
-              onClick={() => onEditProduct(activeProduct)}
-              className="p-1.5 bg-blue-600/30 hover:bg-blue-600 text-blue-300 hover:text-white rounded-lg transition-colors"
-              title="تعديل المنتج"
-            >
-              <Edit size={16} />
-            </button>
-          )}
         </div>
 
         <div
           ref={stageRef}
-          onClick={handleStageClick}
-          className={`relative bg-slate-900/60 border border-slate-800 h-[400px] sm:h-[500px] md:h-[80vh] flex items-center justify-center overflow-hidden ${
-            isAdmin ? "cursor-crosshair" : ""
-          }`}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={resetTilt}
+          className="relative bg-slate-900/60 border border-slate-800 h-[400px] sm:h-[500px] md:h-[80vh] flex items-center justify-center overflow-hidden"
+          style={{ perspective: "1200px" }}
         >
-          <div className="relative w-full h-full transition-all duration-1000 ease-out">
+          <div
+            className="relative w-full h-full transition-all duration-1000 ease-out"
+            style={{
+              opacity: isVisible ? 1 : 0,
+              transform: isVisible
+                ? `translateY(0) scale(1)`
+                : `translateY(48px) scale(0.9)`,
+            }}
+          >
             <img
               src={activeProduct.image}
               alt={getName(activeProduct)}
@@ -232,11 +230,37 @@ export default function ShowcaseSection({
               draggable={false}
             />
 
+            {activeHotspot &&
+              activeProduct.hotspots
+                .filter((h) => h.id === activeHotspot)
+                .map((h) => (
+                  <svg
+                    key={`line-${h.id}`}
+                    className="absolute inset-0 w-full h-full pointer-events-none z-10"
+                  >
+                    <line
+                      x1={`${h.positionX}%`}
+                      y1={`${h.positionY}%`}
+                      x2={lineEnd.x}
+                      y2={lineEnd.y}
+                      stroke="rgba(15, 40, 70, 0.4)"
+                      strokeWidth="1"
+                      strokeDasharray="4 5"
+                      strokeLinecap="round"
+                    />
+                    <circle
+                      cx={lineEnd.x}
+                      cy={lineEnd.y}
+                      r="3"
+                      fill="rgba(96, 165, 250, 0.9)"
+                    />
+                  </svg>
+                ))}
+
             {activeProduct.hotspots.map((h) => (
               <button
                 key={h.id}
-                onClick={(e) => {
-                  e.stopPropagation();
+                onClick={() => {
                   setDragOffset({ x: 0, y: 0 });
                   setActiveHotspot(activeHotspot === h.id ? null : h.id);
                 }}
@@ -253,19 +277,99 @@ export default function ShowcaseSection({
             ))}
           </div>
 
-          {/* أزرار التنقل */}
-          <button
-            onClick={() => goTo(isEn ? activeIndex - 1 : activeIndex + 1)}
-            className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-30 w-8 h-8 md:w-10 md:h-10 rounded-full bg-slate-800/80 hover:bg-slate-700 text-white flex items-center justify-center border border-slate-700"
-          >
-            <ChevronRight size={16} />
-          </button>
           <button
             onClick={() => goTo(isEn ? activeIndex + 1 : activeIndex - 1)}
-            className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-30 w-8 h-8 md:w-10 md:h-10 rounded-full bg-slate-800/80 hover:bg-slate-700 text-white flex items-center justify-center border border-slate-700"
+            className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-30 w-8 h-8 md:w-10 md:h-10 rounded-full bg-slate-800/80 hover:bg-slate-700 text-white flex items-center justify-center border border-slate-700"
+            aria-label={t("showcase_prev")}
           >
-            <ChevronLeft size={16} />
+            <ChevronRight size={16} className="md:w-5 md:h-5" />
           </button>
+          <button
+            onClick={() => goTo(isEn ? activeIndex - 1 : activeIndex + 1)}
+            className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-30 w-8 h-8 md:w-10 md:h-10 rounded-full bg-slate-800/80 hover:bg-slate-700 text-white flex items-center justify-center border border-slate-700"
+            aria-label={t("showcase_next")}
+          >
+            <ChevronLeft size={16} className="md:w-5 md:h-5" />
+          </button>
+
+          {activeProduct.hotspots
+            .filter((h) => h.id === activeHotspot)
+            .map((h) => (
+              <div
+                ref={cardRef}
+                key={h.id}
+                dir={dir}
+                className={`absolute z-40 w-[85vw] max-w-72 bg-slate-900/95 backdrop-blur-md border border-blue-500/30 rounded-2xl p-4 md:p-5 shadow-[0_8px_30px_rgba(0,0,0,0.4)] animate-in fade-in zoom-in duration-300 ${
+                  isDragging ? "cursor-grabbing" : "cursor-grab"
+                }`}
+                style={{
+                  left: `${Math.min(Math.max(h.positionX, 20), 80)}%`,
+                  top: `${Math.min(Math.max(h.positionY, 15), 70)}%`,
+                  transform: `translate(calc(-50% + ${dragOffset.x}px), calc(20px + ${dragOffset.y}px))`,
+                  transition: isDragging ? "none" : "transform 0.2s ease-out",
+                }}
+                onMouseDown={handleDragStart}
+                onTouchStart={(e) => handleDragStart(e as any)}
+              >
+                <div className="absolute top-0 right-4 left-4 h-[2px] bg-gradient-to-r from-blue-500 via-blue-400 to-transparent rounded-full" />
+
+                <button
+                  onClick={() => {
+                    setDragOffset({ x: 0, y: 0 });
+                    setActiveHotspot(null);
+                  }}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  className="absolute top-3 left-3 text-slate-500 hover:text-white hover:bg-slate-800 rounded-full p-1 transition-colors"
+                >
+                  <X size={14} />
+                </button>
+
+                <div className="flex items-start gap-3">
+                  <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-blue-500/15 border border-blue-500/30 flex items-center justify-center mt-0.5">
+                    <Plus size={14} className="text-blue-400" />
+                  </span>
+                  <div className="flex-1 pl-2">
+                    <h4 className="text-white font-semibold text-sm md:text-base mb-1 md:mb-1.5">
+                      {getTitle(h)}
+                    </h4>
+                    <p className="text-slate-400 text-xs md:text-sm leading-relaxed">
+                      {getDescription(h)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+        </div>
+
+        <div className="flex items-center justify-center gap-2 mt-6">
+          {products.map((p, i) => (
+            <button
+              key={p.id}
+              onClick={() => goTo(i)}
+              className={`h-2.5 rounded-full transition-all ${
+                i === activeIndex
+                  ? "w-8 bg-blue-500"
+                  : "w-2.5 bg-slate-600 hover:bg-slate-500"
+              }`}
+              aria-label={getName(p)}
+            />
+          ))}
+        </div>
+
+        <div className="flex items-center justify-center gap-3 mt-6 overflow-x-auto pb-2">
+          {products.map((p, i) => (
+            <button
+              key={p.id}
+              onClick={() => goTo(i)}
+              className={`shrink-0 w-16 h-16 rounded-xl border-2 p-1 bg-slate-800/60 transition-all ${
+                i === activeIndex
+                  ? "border-blue-500"
+                  : "border-slate-700 hover:border-slate-500"
+              }`}
+            >
+              <img src={p.image} alt={getName(p)} className="w-full h-full object-contain" />
+            </button>
+          ))}
         </div>
       </div>
     </section>
