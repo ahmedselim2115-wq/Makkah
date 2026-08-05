@@ -12,6 +12,11 @@ const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/ogg']
 
 const ALLOWED_TYPES = [...ALLOWED_IMAGE_TYPES, ...ALLOWED_VIDEO_TYPES]
 
+// مسار التخزين: بره public وبره .next/standalone تماماً
+// لو حطيت متغير بيئة UPLOAD_DIR (مثلاً لما تربط Railway Volume) هيستخدمه
+// وإلا هيستخدم مجلد "uploads" في جذر المشروع وقت التشغيل
+const UPLOAD_ROOT = process.env.UPLOAD_DIR || path.join(process.cwd(), 'uploads')
+
 export async function POST(req: NextRequest) {
   const user = await getCurrentUser()
   if (!user) {
@@ -53,7 +58,7 @@ export async function POST(req: NextRequest) {
     const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}${ext}`
 
     const subDir = isVideo ? 'videos' : 'images'
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', subDir)
+    const uploadDir = path.join(UPLOAD_ROOT, subDir)
     if (!existsSync(uploadDir)) {
       await mkdir(uploadDir, { recursive: true })
     }
@@ -61,10 +66,11 @@ export async function POST(req: NextRequest) {
     const filePath = path.join(uploadDir, fileName)
     await writeFile(filePath, buffer)
 
-    const url = `/uploads/${subDir}/${fileName}`
+    // الرابط بيوجه لراوت التقديم الخاص بنا مش لمجلد public
+    const url = `/api/files/${subDir}/${fileName}`
     return NextResponse.json({ url })
   } catch (error) {
     console.error('Error uploading file:', error)
     return NextResponse.json({ error: 'حدث خطأ أثناء رفع الملف' }, { status: 500 })
   }
-} 
+}
