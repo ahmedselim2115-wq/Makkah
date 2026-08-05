@@ -101,7 +101,6 @@ export function SettingsForm({ settings, onClose, onSaved }: SettingsFormProps) 
     whatsappWelcomeMessage: '',
     whatsappWelcomeMessageEn: '',
     tiktok: '',
-    telegram: '',
   })
 
   useEffect(() => {
@@ -171,7 +170,6 @@ export function SettingsForm({ settings, onClose, onSaved }: SettingsFormProps) 
         whatsappWelcomeMessage: settings.whatsappWelcomeMessage || '',
         whatsappWelcomeMessageEn: settings.whatsappWelcomeMessageEn || '',
         tiktok: settings.tiktok || '',
-        telegram: (settings as any).telegram || '',
       })
     }
   }, [settings])
@@ -790,86 +788,66 @@ export function SettingsForm({ settings, onClose, onSaved }: SettingsFormProps) 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
               <div className="space-y-2">
                 <Label>{t('settings_form_about_image_label')}</Label>
-                {formData.aboutImage && (
-                  <div className="relative aspect-video rounded-lg overflow-hidden bg-muted border mb-2">
-                    <img src={formData.aboutImage} alt="About" className="w-full h-full object-cover" />
-                    <button
-                      type="button"
-                      onClick={removeAboutImage}
-                      className="absolute top-1 left-1 w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                )}
-                <input
-                  ref={aboutFileInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleAboutImageUpload}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => aboutFileInputRef.current?.click()}
-                  disabled={uploadingAbout}
-                  className="w-full"
-                >
-                  {uploadingAbout ? <Loader2 className="w-4 h-4 ml-2 animate-spin" /> : <ImageIcon className="w-4 h-4 ml-2" />}
-                  {t('settings_form_about_image_upload')}
-                </Button>
+                <div className="flex items-center gap-3">
+                  {formData.aboutImage && (
+                    <div className="relative w-16 h-12 rounded-lg overflow-hidden border">
+                      <img src={formData.aboutImage} alt="preview" className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={removeAboutImage}
+                        className="absolute top-1 left-1 w-4 h-4 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition-colors"
+                      >
+                        <X className="w-2.5 h-2.5" />
+                      </button>
+                    </div>
+                  )}
+                  <input ref={aboutFileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAboutImageUpload} />
+                  <Button type="button" variant="outline" size="sm" onClick={() => aboutFileInputRef.current?.click()} disabled={uploadingAbout}>
+                    <Upload className="w-4 h-4 ml-2" />
+                    {formData.aboutImage ? t('settings_form_image_change') : t('settings_form_image_upload')}
+                  </Button>
+                </div>
               </div>
 
               <div className="space-y-2">
                 <Label>{t('settings_form_about_video_label')}</Label>
-                {formData.aboutVideo && (
-                  <div className="relative aspect-video rounded-lg overflow-hidden bg-muted border mb-2">
-                    <video src={formData.aboutVideo} className="w-full h-full object-cover" controls />
-                    <button
-                      type="button"
-                      onClick={removeAboutVideo}
-                      className="absolute top-1 left-1 w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center z-10"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                )}
-                <input
-                  ref={aboutVideoFileInputRef}
-                  type="file"
-                  accept="video/*"
-                  className="hidden"
-                  onChange={handleAboutVideoUpload}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => aboutVideoFileInputRef.current?.click()}
-                  disabled={uploadingAboutVideo}
-                  className="w-full"
-                >
-                  {uploadingAboutVideo ? <Loader2 className="w-4 h-4 ml-2 animate-spin" /> : <Video className="w-4 h-4 ml-2" />}
-                  {t('settings_form_about_video_upload')}
-                </Button>
+                <div className="flex items-center gap-3">
+                  {formData.aboutVideo && (
+                    <div className="relative w-16 h-12 rounded-lg overflow-hidden border bg-black">
+                      <video src={formData.aboutVideo} className="w-full h-full object-cover" muted />
+                      <button
+                        type="button"
+                        onClick={removeAboutVideo}
+                        className="absolute top-1 left-1 w-4 h-4 rounded-full bg-black/60 text-white flex items-center justify-center"
+                      >
+                        <X className="w-2.5 h-2.5" />
+                      </button>
+                    </div>
+                  )}
+                  <input ref={aboutVideoFileInputRef} type="file" accept="video/*" className="hidden" onChange={handleAboutVideoUpload} />
+                  <Button type="button" variant="outline" size="sm" onClick={() => aboutVideoFileInputRef.current?.click()} disabled={uploadingAboutVideo}>
+                    <Video className="w-4 h-4 ml-2" />
+                    {formData.aboutVideo ? t('settings_form_video_change') : t('settings_form_video_upload')}
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* 4. قسم معلومات التواصل الاجتماعي والاتصال (يشمل تيليجرام) */}
+          {/* 4. معلومات التواصل */}
           <div className="space-y-4">
             <h3 className="font-bold text-lg flex items-center gap-2 pb-2 border-b">
               <span className="w-1 h-6 bg-primary rounded-full" />
               {t('settings_form_section_contact')}
             </h3>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="phone">{t('settings_form_phone')}</Label>
                 <Input
                   id="phone"
                   value={formData.phone}
                   onChange={(e) => handleChange('phone', e.target.value)}
+                  placeholder="+966 12 345 6789"
                   dir="ltr"
                 />
               </div>
@@ -877,29 +855,69 @@ export function SettingsForm({ settings, onClose, onSaved }: SettingsFormProps) 
                 <Label htmlFor="email">{t('settings_form_email')}</Label>
                 <Input
                   id="email"
+                  type="email"
                   value={formData.email}
                   onChange={(e) => handleChange('email', e.target.value)}
+                  placeholder="info@example.com"
                   dir="ltr"
                 />
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="address">{t('settings_form_address')}</Label>
+              <Input
+                id="address"
+                value={formData.address}
+                onChange={(e) => handleChange('address', e.target.value)}
+                placeholder="العنوان الكامل"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="mapLocation">{t('settings_form_map_location')}</Label>
+              <Input
+                id="mapLocation"
+                value={formData.mapLocation}
+                onChange={(e) => handleChange('mapLocation', e.target.value)}
+                placeholder="مكة المكرمة، المنطقة الصناعية"
+                dir="ltr"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="workingHours">{t('settings_form_working_hours')}</Label>
+              <Input
+                id="workingHours"
+                value={formData.workingHours}
+                onChange={(e) => handleChange('workingHours', e.target.value)}
+                placeholder="السبت - الخميس: 9 صباحاً - 6 مساءً"
+              />
+            </div>
+          </div>
+
+          {/* 5. التواصل الاجتماعي */}
+          <div className="space-y-4">
+            <h3 className="font-bold text-lg flex items-center gap-2 pb-2 border-b">
+              <span className="w-1 h-6 bg-primary rounded-full" />
+              {t('settings_form_section_social')}
+            </h3>
+            <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="whatsapp">{t('settings_form_whatsapp')}</Label>
                 <Input
                   id="whatsapp"
                   value={formData.whatsapp}
                   onChange={(e) => handleChange('whatsapp', e.target.value)}
+                  placeholder="+966500000000"
                   dir="ltr"
                 />
               </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="facebook">{t('settings_form_facebook')}</Label>
                 <Input
                   id="facebook"
+                  type="url"
                   value={formData.facebook}
                   onChange={(e) => handleChange('facebook', e.target.value)}
+                  placeholder="https://facebook.com/..."
                   dir="ltr"
                 />
               </div>
@@ -907,111 +925,72 @@ export function SettingsForm({ settings, onClose, onSaved }: SettingsFormProps) 
                 <Label htmlFor="instagram">{t('settings_form_instagram')}</Label>
                 <Input
                   id="instagram"
+                  type="url"
                   value={formData.instagram}
                   onChange={(e) => handleChange('instagram', e.target.value)}
+                  placeholder="https://instagram.com/..."
                   dir="ltr"
                 />
               </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="tiktok">{t('settings_form_tiktok')}</Label>
+                <Label htmlFor="tiktok">{t('settings_form_tiktok') || 'رابط تيك توك'}</Label>
                 <Input
                   id="tiktok"
+                  type="url"
                   value={formData.tiktok}
                   onChange={(e) => handleChange('tiktok', e.target.value)}
+                  placeholder="https://tiktok.com/@..."
                   dir="ltr"
                 />
+                
               </div>
+              </div>
+              {/* حقل التيليجرام */}
               <div className="space-y-2">
                 <Label htmlFor="telegram">تيليجرام (Telegram)</Label>
                 <Input
                   id="telegram"
-                  value={formData.telegram}
+                  value={(formData as any).telegram || ''}
                   onChange={(e) => handleChange('telegram', e.target.value)}
                   placeholder="https://t.me/yourusername"
                   dir="ltr"
                 />
               </div>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="whatsappWelcomeMessage">{t('settings_form_whatsapp_msg_ar')}</Label>
-                <Textarea
-                  id="whatsappWelcomeMessage"
-                  value={formData.whatsappWelcomeMessage}
-                  onChange={(e) => handleChange('whatsappWelcomeMessage', e.target.value)}
-                  rows={2}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="whatsappWelcomeMessageEn">{t('settings_form_whatsapp_msg_en')}</Label>
-                <Textarea
-                  id="whatsappWelcomeMessageEn"
-                  value={formData.whatsappWelcomeMessageEn}
-                  onChange={(e) => handleChange('whatsappWelcomeMessageEn', e.target.value)}
-                  rows={2}
-                  dir="ltr"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="address">{t('settings_form_address_ar')}</Label>
-                <Input
-                  id="address"
-                  value={formData.address}
-                  onChange={(e) => handleChange('address', e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="mapLocation">{t('settings_form_map_location')}</Label>
-                <Input
-                  id="mapLocation"
-                  value={formData.mapLocation}
-                  onChange={(e) => handleChange('mapLocation', e.target.value)}
-                  dir="ltr"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="workingHours">{t('settings_form_working_hours_ar')}</Label>
-                <Input
-                  id="workingHours"
-                  value={formData.workingHours}
-                  onChange={(e) => handleChange('workingHours', e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="workingHoursEn">{t('settings_form_working_hours_en')}</Label>
-                <Input
-                  id="workingHoursEn"
-                  value={formData.workingHoursEn}
-                  onChange={(e) => handleChange('workingHoursEn', e.target.value)}
-                  dir="ltr"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* أزرار الحفظ والإغلاق داخل الـ form في مكانها الصحيح */}
-          <div className="flex items-center justify-end gap-3 pt-4 border-t">
-            <Button type="button" variant="outline" onClick={onClose}>
-              {t('admin_cancel')}
-            </Button>
-            <Button type="submit" disabled={loading}>
-              {loading && <Loader2 className="w-4 h-4 ml-2 animate-spin" />}
-              <Save className="w-4 h-4 ml-2" />
-              {t('admin_save')}
-            </Button>
-          </div>
+            
+          
 
         </form>
+
+        {/* الأزرار في الأسفل */}
+        <div className="flex gap-3 p-6 border-t bg-muted/30">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            className="flex-1"
+          >
+            {t('admin_cancel')}
+          </Button>
+          <Button
+            type="submit"
+            onClick={handleSubmit}
+            disabled={loading}
+            className="flex-1 gradient-primary text-white"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 ml-2 animate-spin" />
+                {t('admin_saving')}
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4 ml-2" />
+                {t('admin_save')}
+              </>
+            )}
+          </Button>
+        </div>
       </div>
     </div>
   )
