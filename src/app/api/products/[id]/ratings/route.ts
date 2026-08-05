@@ -9,15 +9,28 @@ export async function GET(
   try {
     const { id } = await params
 
-    const result = await db.rating.aggregate({
-      where: { productId: id },
+   const result = await db.rating.aggregate({
+      where: { productId: id, status: 'approved' },
       _avg: { value: true },
       _count: { value: true },
+    })
+
+    const reviews = await db.rating.findMany({
+      where: { productId: id, status: 'approved' },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        customerName: true,
+        value: true,
+        comment: true,
+        createdAt: true,
+      },
     })
 
     return NextResponse.json({
       average: result._avg.value || 0,
       count: result._count.value,
+      reviews,
     })
   } catch (err) {
     console.error(err)

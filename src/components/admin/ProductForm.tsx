@@ -25,7 +25,8 @@ function cleanText(text: string | null | undefined): string {
 }
 
 export function ProductForm({ product, onClose, onSaved }: ProductFormProps) {
-  const { t } = useAdminLanguage()
+  const { t, locale } = useAdminLanguage()
+  const isAdminEn = locale === 'en'
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -125,6 +126,14 @@ export function ProductForm({ product, onClose, onSaved }: ProductFormProps) {
       categoryEn: found?.nameEn || prev.categoryEn,
     }))
   }
+  const handleCategoryChangeEn = (nameEn: string) => {
+  const found = categories.find((c) => c.nameEn === nameEn)
+  setFormData((prev) => ({
+    ...prev,
+    categoryEn: nameEn,
+    category: found?.name || prev.category,
+  }))
+}
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -300,9 +309,19 @@ export function ProductForm({ product, onClose, onSaved }: ProductFormProps) {
           </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="category">{t('product_form_category')}</Label>
+         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="category">{t('product_form_category')}</Label>
+            {isAdminEn ? (
+              <Input
+                id="category"
+                value={formData.category}
+                readOnly
+                disabled
+                dir="rtl"
+                className="bg-muted/50 cursor-not-allowed"
+              />
+            ) : (
               <select
                 id="category"
                 value={formData.category}
@@ -319,19 +338,48 @@ export function ProductForm({ product, onClose, onSaved }: ProductFormProps) {
                   </option>
                 ))}
               </select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="categoryEn">{t('product_form_category_en')}</Label>
-              <Input
-                id="categoryEn"
-                value={formData.categoryEn}
-                onChange={(e) => handleChange('categoryEn', e.target.value)}
-                placeholder="e.g. Refrigerators"
-                dir="ltr"
-              />
-            </div>
+            )}
           </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="categoryEn">{t('product_form_category_en')}</Label>
+                {isAdminEn ? (
+                  <select
+                    id="categoryEn"
+                    value={formData.categoryEn}
+                    onChange={(e) => handleCategoryChangeEn(e.target.value)}
+                    disabled={categoriesLoading}
+                    dir="ltr"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <option value="" disabled>
+                      {categoriesLoading ? t('product_form_category_loading') : t('product_form_category_select')}
+                    </option>
+                    {categories
+                      .filter((cat) => !!cat.nameEn)
+                      .map((cat) => (
+                        <option key={cat.id} value={cat.nameEn as string}>
+                          {cat.nameEn}
+                        </option>
+                      ))}
+                  </select>
+                ) : (
+                  <Input
+                    id="categoryEn"
+                    value={formData.categoryEn}
+                    onChange={(e) => handleChange('categoryEn', e.target.value)}
+                    placeholder="e.g. Refrigerators"
+                    dir="ltr"
+                    disabled={!!categories.find((c) => c.name === formData.category)?.nameEn}
+                    className={
+                      categories.find((c) => c.name === formData.category)?.nameEn
+                        ? 'bg-muted/50 cursor-not-allowed'
+                        : ''
+                    }
+                  />
+                )}
+              </div>
+            </div>
 
           <div className="space-y-2">
             <Label>{t('product_form_image')}</Label>

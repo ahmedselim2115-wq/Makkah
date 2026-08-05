@@ -1,6 +1,7 @@
 ﻿'use client'
+
 import { useMemo } from 'react'
-import { Phone, Mail, MapPin, Clock, Facebook, Instagram, MessageCircle, Music } from 'lucide-react'
+import { Phone, Mail, MapPin, Clock, Facebook, Instagram, MessageCircle, Send } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import type { SiteSettings } from '@/lib/types'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -8,6 +9,7 @@ import { useLanguage } from '@/contexts/LanguageContext'
 interface ContactSectionProps {
   settings: SiteSettings | null
 }
+
 const TikTokIcon = ({ className }) => (
   <svg 
     viewBox="0 0 24 24" 
@@ -17,7 +19,7 @@ const TikTokIcon = ({ className }) => (
   >
     <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.17-2.89-.6-4.13-1.47V18.77a6.738 6.738 0 0 1-6.76 6.76 6.738 6.738 0 0 1-6.76-6.76c0-3.74 3.02-6.76 6.76-6.76.43 0 .85.04 1.27.12V16.33a3.125 3.125 0 0 0-1.27-.26 3.125 3.125 0 0 0-3.13 3.13 3.125 3.125 0 0 0 3.13 3.13 3.125 3.125 0 0 0 3.13-3.13V.02Z"/>
   </svg>
- );
+)
 
 export function ContactSection({ settings }: ContactSectionProps) {
   const { t } = useLanguage()
@@ -133,11 +135,24 @@ export function ContactSection({ settings }: ContactSectionProps) {
                 {settings?.tiktok && (
                   <a href={settings.tiktok} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors">
                     <div className="w-12 h-12 rounded-xl bg-black flex items-center justify-center">
-                      <TikTokIcon  className="w-5 h-6 text-white" />
+                      <TikTokIcon className="w-5 h-6 text-white" />
                     </div>
                     <div>
                       <p className="font-bold">{t('contact_tiktok') || 'تيك توك'}</p>
                       <p className="text-sm text-muted-foreground">{t('contact_tiktok_text') || 'تابعنا على تيك توك'}</p>
+                    </div>
+                  </a>
+                )}
+
+                {/* زر وتفاصيل تليجرام المضافة */}
+                {settings?.telegram && (
+                  <a href={settings.telegram} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 rounded-xl bg-sky-50 hover:bg-sky-100 transition-colors">
+                    <div className="w-12 h-12 rounded-xl bg-sky-500 flex items-center justify-center">
+                      <Send className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <p className="font-bold">{t('contact_telegram') || 'تليجرام'}</p>
+                      <p className="text-sm text-muted-foreground">{t('contact_telegram_text') || 'تواصل معنا عبر تليجرام'}</p>
                     </div>
                   </a>
                 )}

@@ -174,7 +174,7 @@ export function AboutSection({ settings }: AboutSectionProps) {
           </div>
 
           <div className="space-y-6 order-1 lg:order-2">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
+           <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mx-auto w-fit">
               <Factory className="w-4 h-4" />
               <span>{(isEn ? settings?.aboutTitleEn : settings?.aboutTitle)?.trim() || t('about_default_title')}</span>
             </div>

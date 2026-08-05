@@ -38,7 +38,8 @@ export interface SiteSettings {
   workingHours: string
   facebook: string
   instagram: string
-  tiktok: string // أضف هذا السطر هنا
+  tiktok: string 
+  telegram: string
   whatsapp: string
   whatsappWidgetEnabled?: boolean
   whatsappWelcomeMessage?: string

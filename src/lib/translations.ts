@@ -88,7 +88,9 @@ export const translations = {
     contact_instagram: 'انستغرام',
     contact_instagram_text: 'شاهد أحدث أعمالنا',
     contact_tiktok: 'تيك توك', 
-contact_tiktok_text: 'تابعنا على تيك توك', 
+    contact_tiktok_text: 'تابعنا على تيك توك', 
+    contact_telegram: 'تليجرام',
+    contact_telegram_text: 'انضم إلينا على تليجرام',
 
     footer_description:
       'نحن نقدم حلول تبريد متكاملة بأعلى معايير الجودة والكفاءة لجميع القطاعات التجارية والصناعية',
@@ -195,7 +197,9 @@ contact_tiktok_text: 'تابعنا على تيك توك',
     contact_instagram: 'Instagram',
     contact_instagram_text: 'See our latest work',
     contact_tiktok: 'TikTok',
-contact_tiktok_text: 'Follow us on TikTok', 
+    contact_tiktok_text: 'Follow us on TikTok', 
+    contact_telegram: 'Telegram',
+    contact_telegram_text: 'Join us on Telegram',
 
     footer_description:
       'We provide integrated cooling solutions with the highest standards of quality and efficiency for all commercial and industrial sectors',

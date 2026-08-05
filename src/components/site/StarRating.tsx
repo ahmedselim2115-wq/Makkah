@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Star, X, Loader2 } from 'lucide-react'
+import { Star, X, Loader2, MessageSquare } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -10,12 +10,23 @@ interface StarRatingProps {
   productId: string
 }
 
+interface Review {
+  id: string
+  customerName: string
+  value: number
+  comment: string | null
+  createdAt: string
+}
+
 export function StarRating({ productId }: StarRatingProps) {
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
+  const isEn = locale === 'en'
   const [average, setAverage] = useState(0)
   const [count, setCount] = useState(0)
+  const [reviews, setReviews] = useState<Review[]>([])
   const [hasRated, setHasRated] = useState(false)
   const [showModal, setShowModal] = useState(false)
+  const [showReviewsModal, setShowReviewsModal] = useState(false)
   const [selectedValue, setSelectedValue] = useState(0)
   const [hoveredValue, setHoveredValue] = useState(0)
   const [customerName, setCustomerName] = useState('')
@@ -34,6 +45,7 @@ export function StarRating({ productId }: StarRatingProps) {
       .then((data) => {
         setAverage(data.average || 0)
         setCount(data.count || 0)
+        setReviews(data.reviews || [])
       })
       .catch(() => {})
   }, [productId])
@@ -43,6 +55,11 @@ export function StarRating({ productId }: StarRatingProps) {
     if (hasRated) return
     setSelectedValue(5)
     setShowModal(true)
+  }
+
+  function openReviewsModal(e: React.MouseEvent) {
+    e.stopPropagation()
+    setShowReviewsModal(true)
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -77,6 +94,7 @@ export function StarRating({ productId }: StarRatingProps) {
         localStorage.setItem(`rated_${productId}`, '1')
         toast.success(t('rating_thanks'))
         setShowModal(false)
+        // ملاحظة: التقييم الجديد pending، فمش هيظهر في القايمة إلا بعد موافقة الأدمن
       } else {
         const data = await res.json()
         toast.error(data.error || t('order_modal_error'))
@@ -90,28 +108,42 @@ export function StarRating({ productId }: StarRatingProps) {
 
   return (
     <>
-      <div
-        className="flex items-center gap-1.5"
-        onClick={hasRated ? (e) => e.stopPropagation() : openModal}
-        role={hasRated ? undefined : 'button'}
-      >
-        <div className="flex items-center" dir="ltr">
-          {[1, 2, 3, 4, 5].map((star) => (
-            <Star
-              key={star}
-              className={`w-4 h-4 ${
-                star <= Math.round(average)
-                  ? 'fill-amber-400 text-amber-400'
-                  : 'text-muted-foreground/40'
-              } ${!hasRated ? 'cursor-pointer' : ''}`}
-            />
-          ))}
+      <div className="flex items-center gap-1.5 flex-wrap">
+        <div
+          className="flex items-center gap-1.5"
+          onClick={hasRated ? (e) => e.stopPropagation() : openModal}
+          role={hasRated ? undefined : 'button'}
+        >
+          <div className="flex items-center" dir="ltr">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Star
+                key={star}
+                className={`w-4 h-4 ${
+                  star <= Math.round(average)
+                    ? 'fill-amber-400 text-amber-400'
+                    : 'text-muted-foreground/40'
+                } ${!hasRated ? 'cursor-pointer' : ''}`}
+              />
+            ))}
+          </div>
+          <span className="text-xs text-muted-foreground">
+            {count > 0 ? `(${average.toFixed(1)} · ${count})` : t('rating_rate_product')}
+          </span>
         </div>
-        <span className="text-xs text-muted-foreground">
-          {count > 0 ? `(${average.toFixed(1)} · ${count})` : t('rating_rate_product')}
-        </span>
+
+        {count > 0 && (
+          <button
+            type="button"
+            onClick={openReviewsModal}
+            className="text-xs text-primary hover:underline flex items-center gap-1"
+          >
+            <MessageSquare className="w-3 h-3" />
+            {isEn ? 'View reviews' : 'عرض التقييمات'}
+          </button>
+        )}
       </div>
 
+      {/* مودال إضافة تقييم */}
       {showModal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
@@ -189,6 +221,70 @@ export function StarRating({ productId }: StarRatingProps) {
                 {t('rating_submit')}
               </Button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* مودال عرض التقييمات والتعليقات */}
+      {showReviewsModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+          onClick={() => setShowReviewsModal(false)}
+        >
+          <div
+            className="bg-white rounded-2xl w-full max-w-md max-h-[80vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between p-4 border-b sticky top-0 bg-white rounded-t-2xl">
+              <div>
+                <h3 className="font-bold text-lg">{isEn ? 'Customer Reviews' : 'تقييمات العملاء'}</h3>
+                <p className="text-xs text-muted-foreground">
+                  {average.toFixed(1)} · {count} {isEn ? 'reviews' : 'تقييم'}
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowReviewsModal(false)}
+                aria-label={t('close_label')}
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
+
+            <div className="p-4 space-y-3">
+              {reviews.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-6">
+                  {isEn ? 'No reviews yet' : 'لا توجد تقييمات بعد'}
+                </p>
+              ) : (
+                reviews.map((review) => (
+                  <div key={review.id} className="p-3 rounded-lg border bg-muted/30 space-y-1.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-medium text-sm">{review.customerName}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(review.createdAt).toLocaleDateString(isEn ? 'en-US' : 'ar-EG')}
+                      </span>
+                    </div>
+                    <div className="flex items-center" dir="ltr">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          className={`w-3.5 h-3.5 ${
+                            star <= review.value
+                              ? 'fill-amber-400 text-amber-400'
+                              : 'text-muted-foreground/30'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    {review.comment && (
+                      <p className="text-sm text-muted-foreground leading-relaxed">{review.comment}</p>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </div>
       )}

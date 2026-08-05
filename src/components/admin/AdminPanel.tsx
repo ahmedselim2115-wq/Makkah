@@ -519,9 +519,16 @@ export function AdminPanel({ onClose, onSiteUpdate }: AdminPanelProps) {
                           <p className="text-xs text-muted-foreground line-clamp-2 mb-3">
                             {product.description}
                           </p>
-                          <p className="text-lg font-bold text-primary mb-3">
-                            {product.price.toLocaleString('ar-EG')} ج.م
-                          </p>
+                          <div className="mb-3">
+                            {product.compareAtPrice && product.compareAtPrice > 0 && (
+                              <p className="text-sm text-muted-foreground line-through">
+                              {product.compareAtPrice.toLocaleString('ar-EG')} ج.م
+                            </p>
+                            )}
+                            <p className="text-lg font-bold text-primary">
+                              {product.price.toLocaleString('ar-EG')} ج.م
+                            </p>
+                          </div>
                           <div className="flex gap-2">
                             <Button
                               size="sm"
