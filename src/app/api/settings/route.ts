@@ -43,6 +43,7 @@ const SIMPLE_FIELDS = [
   'facebook',
   'instagram',
   'tiktok', 
+  'telegram',
   'whatsapp',
   'whatsappWidgetEnabled',
   'whatsappWelcomeMessage',

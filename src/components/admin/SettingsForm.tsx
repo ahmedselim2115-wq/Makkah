@@ -97,6 +97,7 @@ export function SettingsForm({ settings, onClose, onSaved }: SettingsFormProps) 
     workingHoursEn: '',
     facebook: '',
     instagram: '',
+    telegram: '',
     whatsapp: '',
     whatsappWelcomeMessage: '',
     whatsappWelcomeMessageEn: '',
@@ -166,6 +167,7 @@ export function SettingsForm({ settings, onClose, onSaved }: SettingsFormProps) 
         workingHoursEn: settings.workingHoursEn || '',
         facebook: settings.facebook || '',
         instagram: settings.instagram || '',
+        telegram: settings.telegram || '',
         whatsapp: settings.whatsapp || '',
         whatsappWelcomeMessage: settings.whatsappWelcomeMessage || '',
         whatsappWelcomeMessageEn: settings.whatsappWelcomeMessageEn || '',
@@ -893,7 +895,7 @@ export function SettingsForm({ settings, onClose, onSaved }: SettingsFormProps) 
             </div>
           </div>
 
-          {/* 5. التواصل الاجتماعي */}
+         {/* 5. التواصل الاجتماعي */}
           <div className="space-y-4">
             <h3 className="font-bold text-lg flex items-center gap-2 pb-2 border-b">
               <span className="w-1 h-6 bg-primary rounded-full" />
@@ -933,6 +935,17 @@ export function SettingsForm({ settings, onClose, onSaved }: SettingsFormProps) 
                 />
               </div>
               <div className="space-y-2">
+                <Label htmlFor="telegram">{t('settings_form_telegram')}</Label>
+                <Input
+                  id="telegram"
+                  type="url"
+                  value={formData.telegram}
+                  onChange={(e) => handleChange('telegram', e.target.value)}
+                  placeholder="https://t.me/..."
+                  dir="ltr"
+                />
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="tiktok">{t('settings_form_tiktok') || 'رابط تيك توك'}</Label>
                 <Input
                   id="tiktok"
@@ -942,7 +955,6 @@ export function SettingsForm({ settings, onClose, onSaved }: SettingsFormProps) 
                   placeholder="https://tiktok.com/@..."
                   dir="ltr"
                 />
-                
               </div>
             </div>
           </div>
