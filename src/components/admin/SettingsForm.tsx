@@ -944,21 +944,8 @@ export function SettingsForm({ settings, onClose, onSaved }: SettingsFormProps) 
                 />
                 
               </div>
-              </div>
-              {/* حقل التيليجرام */}
-              <div className="space-y-2">
-                <Label htmlFor="telegram">تيليجرام (Telegram)</Label>
-                <Input
-                  id="telegram"
-                  value={(formData as any).telegram || ''}
-                  onChange={(e) => handleChange('telegram', e.target.value)}
-                  placeholder="https://t.me/yourusername"
-                  dir="ltr"
-                />
-              </div>
             </div>
-            
-          
+          </div>
 
         </form>
 
