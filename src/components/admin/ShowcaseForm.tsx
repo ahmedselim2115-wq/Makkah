@@ -34,6 +34,27 @@
     const [placingMode, setPlacingMode] = useState(false);
     const [saving, setSaving] = useState(false);
     const imageRef = useRef<HTMLDivElement>(null);
+const imgElRef = useRef<HTMLImageElement>(null);
+const [imgRect, setImgRect] = useState({ left: 0, top: 0, width: 0, height: 0 });
+
+const updateImgRect = () => {
+  if (!imageRef.current || !imgElRef.current?.naturalWidth) return;
+  const c = imageRef.current.getBoundingClientRect();
+  setImgRect(
+    getContainedImageRect(
+      c.width,
+      c.height,
+      imgElRef.current.naturalWidth,
+      imgElRef.current.naturalHeight
+    )
+  );
+};
+
+useEffect(() => {
+  updateImgRect();
+  window.addEventListener("resize", updateImgRect);
+  return () => window.removeEventListener("resize", updateImgRect);
+}, [editing?.image]);
 
     const load = async () => {
       const res = await fetch("/api/admin/showcase");
@@ -321,19 +342,24 @@
                     }`}
                   >
                     <img
+                      ref={imgElRef}
                       src={editing.image}
                       alt={editing.name}
-                      className="w-full h-full object-cover pointer-events-none select-none"
+                      onLoad={updateImgRect}
+                      className="w-full h-full object-contain pointer-events-none select-none"
                     />
                   {editing.hotspots.map((h) => (
-                    <div
-                      key={h.id}
-                      style={{ left: `${h.positionX}%`, top: `${h.positionY}%` }}
-                      className="absolute -translate-x-1/2 -translate-y-1/2 w-6 h-6 rounded-full gradient-primary text-white text-xs flex items-center justify-center border-2 border-white shadow"
-                    >
-                      +
-                    </div>
-                  ))}
+                      <div
+                        key={h.id}
+                        style={{
+                          left: `${imgRect.left + (h.positionX / 100) * imgRect.width}px`,
+                          top: `${imgRect.top + (h.positionY / 100) * imgRect.height}px`,
+                        }}
+                        className="absolute -translate-x-1/2 -translate-y-1/2 w-6 h-6 rounded-full gradient-primary text-white text-xs flex items-center justify-center border-2 border-white shadow"
+                      >
+                        +
+                      </div>
+                    ))}
                 </div>
               </div>
             )}
