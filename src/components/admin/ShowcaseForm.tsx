@@ -296,17 +296,17 @@
                 </div>
 
                 <div
-                  ref={imageRef}
-                  onClick={handleStageClick}
-                  className={`relative bg-slate-900 rounded-xl overflow-hidden ${
-                    placingMode ? "cursor-crosshair" : ""
-                  }`}
-                >
-                  <img
-                    src={editing.image}
-                    alt={editing.name}
-                    className="w-full h-80 object-contain pointer-events-none select-none"
-                  />
+                    ref={imageRef}
+                    onClick={handleStageClick}
+                    className={`relative bg-slate-900 rounded-xl overflow-hidden aspect-[4/3] ${
+                      placingMode ? "cursor-crosshair" : ""
+                    }`}
+                  >
+                    <img
+                      src={editing.image}
+                      alt={editing.name}
+                      className="w-full h-full object-cover pointer-events-none select-none"
+                    />
                   {editing.hotspots.map((h) => (
                     <div
                       key={h.id}
