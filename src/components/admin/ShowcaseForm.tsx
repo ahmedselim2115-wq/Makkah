@@ -4,6 +4,7 @@
   import { useEffect, useRef, useState } from "react";
   import { Plus, Trash2, X, Upload } from "lucide-react";
   import { useAdminLanguage } from "@/contexts/AdminLanguageContext";
+  import { getContainedImageRect } from "@/lib/imageFit";
 
   interface Hotspot {
     id: string;
@@ -78,28 +79,45 @@
     };
 
     const handleStageClick = (e: React.MouseEvent<HTMLDivElement>) => {
-      if (!placingMode || !editing || !imageRef.current) return;
-      const rect = imageRef.current.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width) * 100;
-      const y = ((e.clientY - rect.top) / rect.height) * 100;
+        if (!placingMode || !editing || !imageRef.current) return;
+        const imgEl = imageRef.current.querySelector("img") as HTMLImageElement | null;
+        if (!imgEl || !imgEl.naturalWidth) return;
 
-      setEditing({
-        ...editing,
-        hotspots: [
-          ...editing.hotspots,
-          {
-            id: `temp-${Date.now()}`,
-            title: "",
-            titleEn: "",
-            description: "",
-            descriptionEn: "",
-            positionX: Math.round(x * 10) / 10,
-            positionY: Math.round(y * 10) / 10,
-          },
-        ],
-      });
-      setPlacingMode(false);
-    };
+        const containerRect = imageRef.current.getBoundingClientRect();
+        const { left, top, width, height } = getContainedImageRect(
+          containerRect.width,
+          containerRect.height,
+          imgEl.naturalWidth,
+          imgEl.naturalHeight
+        );
+
+        const clickX = e.clientX - containerRect.left;
+        const clickY = e.clientY - containerRect.top;
+
+        if (clickX < left || clickX > left + width || clickY < top || clickY > top + height) {
+          return; // ضغط برة حدود الصورة الفعلية (المنطقة الفارغة)
+        }
+
+        const x = ((clickX - left) / width) * 100;
+        const y = ((clickY - top) / height) * 100;
+
+        setEditing({
+          ...editing,
+          hotspots: [
+            ...editing.hotspots,
+            {
+              id: `temp-${Date.now()}`,
+              title: "",
+              titleEn: "",
+              description: "",
+              descriptionEn: "",
+              positionX: Math.round(x * 10) / 10,
+              positionY: Math.round(y * 10) / 10,
+            },
+          ],
+        });
+        setPlacingMode(false);
+      };
 
     const updateHotspot = (id: string, patch: Partial<Hotspot>) => {
       if (!editing) return;

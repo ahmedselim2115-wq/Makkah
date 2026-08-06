@@ -4,6 +4,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Plus, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { getContainedImageRect } from "@/lib/imageFit";
 
 interface Hotspot {
   id: string;
@@ -41,6 +42,21 @@ export default function ShowcaseSection({ settings }: ShowcaseSectionProps) {
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [loading, setLoading] = useState(true);
   const stageRef = useRef<HTMLDivElement>(null);
+  const imgElRef = useRef<HTMLImageElement>(null);
+  const [imgRect, setImgRect] = useState({ left: 0, top: 0, width: 0, height: 0 });
+
+  const updateImgRect = () => {
+    if (!stageRef.current || !imgElRef.current?.naturalWidth) return;
+    const c = stageRef.current.getBoundingClientRect();
+    setImgRect(
+      getContainedImageRect(
+        c.width,
+        c.height,
+        imgElRef.current.naturalWidth,
+        imgElRef.current.naturalHeight
+      )
+    );
+  };
   const [isVisible, setIsVisible] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -73,7 +89,14 @@ export default function ShowcaseSection({ settings }: ShowcaseSectionProps) {
     return () => observer.disconnect();
   }, [loading]);
 
-  const activeProduct = products[activeIndex];
+  const activeProduct = products[activeIndex];   // ✅ هنا دلوقتي
+
+  useEffect(() => {
+    updateImgRect();
+    window.addEventListener("resize", updateImgRect);
+    return () => window.removeEventListener("resize", updateImgRect);
+  }, [activeProduct?.image]);
+ 
 
   const getName = (p: ShowcaseProduct) => (isEn && p.nameEn ? p.nameEn : p.name);
   const getTitle = (h: Hotspot) => (isEn && h.titleEn ? h.titleEn : h.title);
@@ -224,11 +247,13 @@ export default function ShowcaseSection({ settings }: ShowcaseSectionProps) {
             }}
           >
             <img
-              src={activeProduct.image}
-              alt={getName(activeProduct)}
-              className="w-full h-full object-cover object-center drop-shadow-2xl select-none pointer-events-none"
-              draggable={false}
-            />
+                ref={imgElRef}
+                src={activeProduct.image}
+                alt={getName(activeProduct)}
+                onLoad={updateImgRect}
+                className="w-full h-full object-contain object-center drop-shadow-2xl select-none pointer-events-none"
+                draggable={false}
+              />
 
             {activeHotspot &&
               activeProduct.hotspots
@@ -239,8 +264,8 @@ export default function ShowcaseSection({ settings }: ShowcaseSectionProps) {
                     className="absolute inset-0 w-full h-full pointer-events-none z-10"
                   >
                     <line
-                      x1={`${h.positionX}%`}
-                      y1={`${h.positionY}%`}
+                      x1={imgRect.left + (h.positionX / 100) * imgRect.width}
+                      y1={imgRect.top + (h.positionY / 100) * imgRect.height}
                       x2={lineEnd.x}
                       y2={lineEnd.y}
                       stroke="rgba(15, 40, 70, 0.4)"
@@ -264,7 +289,10 @@ export default function ShowcaseSection({ settings }: ShowcaseSectionProps) {
                   setDragOffset({ x: 0, y: 0 });
                   setActiveHotspot(activeHotspot === h.id ? null : h.id);
                 }}
-                style={{ left: `${h.positionX}%`, top: `${h.positionY}%` }}
+                style={{
+                  left: `${imgRect.left + (h.positionX / 100) * imgRect.width}px`,
+                  top: `${imgRect.top + (h.positionY / 100) * imgRect.height}px`,
+                }}
                 className="absolute -translate-x-1/2 -translate-y-1/2 z-20"
               >
                 <span className="relative flex items-center justify-center w-6 h-6 md:w-8 md:h-8">
@@ -302,9 +330,9 @@ export default function ShowcaseSection({ settings }: ShowcaseSectionProps) {
                 className={`absolute z-40 w-[85vw] max-w-72 bg-slate-900/95 backdrop-blur-md border border-blue-500/30 rounded-2xl p-4 md:p-5 shadow-[0_8px_30px_rgba(0,0,0,0.4)] animate-in fade-in zoom-in duration-300 ${
                   isDragging ? "cursor-grabbing" : "cursor-grab"
                 }`}
-                style={{
-                  left: `${Math.min(Math.max(h.positionX, 20), 80)}%`,
-                  top: `${Math.min(Math.max(h.positionY, 15), 70)}%`,
+                 style={{
+                  left: `${imgRect.left + (Math.min(Math.max(h.positionX, 20), 80) / 100) * imgRect.width}px`,
+                  top: `${imgRect.top + (Math.min(Math.max(h.positionY, 15), 70) / 100) * imgRect.height}px`,
                   transform: `translate(calc(-50% + ${dragOffset.x}px), calc(20px + ${dragOffset.y}px))`,
                   transition: isDragging ? "none" : "transform 0.2s ease-out",
                 }}
