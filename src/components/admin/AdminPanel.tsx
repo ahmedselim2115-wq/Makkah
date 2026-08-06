@@ -45,6 +45,7 @@ type TabType = 'dashboard' | 'products' | 'categories' | 'users' | 'settings' | 
 export function AdminPanel({ onClose, onSiteUpdate }: AdminPanelProps) {
   const { user, loading: authLoading, hasPermission, logout, refreshUser } = useAuth()
   const { t, locale, setLocale } = useAdminLanguage()
+  const isAdminEn = locale === 'en'
   const [activeTab, setActiveTab] = useState<TabType>('dashboard')
   const [products, setProducts] = useState<Product[]>([])
   const [settings, setSettings] = useState<SiteSettings | null>(null)
@@ -504,7 +505,9 @@ export function AdminPanel({ onClose, onSiteUpdate }: AdminPanelProps) {
                         </div>
                         <CardContent className="p-4">
                           <div className="flex items-start justify-between gap-2 mb-2">
-                            <Badge variant="secondary">{product.category}</Badge>
+                            <Badge variant="secondary">
+                              {isAdminEn && product.categoryEn ? product.categoryEn : product.category}
+                            </Badge>
                             {product.inStock ? (
                               <Badge variant="secondary" className="bg-green-100 text-green-700">
                                 {t('badge_in_stock')}
@@ -514,19 +517,21 @@ export function AdminPanel({ onClose, onSiteUpdate }: AdminPanelProps) {
                             )}
                           </div>
                           <h3 className="font-bold text-sm line-clamp-2 mb-2 min-h-[2.5rem]">
-                            {product.name}
+                            {isAdminEn && product.nameEn ? product.nameEn : product.name}
                           </h3>
                           <p className="text-xs text-muted-foreground line-clamp-2 mb-3">
-                            {product.description}
+                            {isAdminEn && product.descriptionEn ? product.descriptionEn : product.description}
                           </p>
                           <div className="mb-3">
                             {product.compareAtPrice && product.compareAtPrice > 0 && (
                               <p className="text-sm text-muted-foreground line-through">
-                              {product.compareAtPrice.toLocaleString('ar-EG')} ج.م
-                            </p>
+                                {product.compareAtPrice.toLocaleString(isAdminEn ? 'en-US' : 'ar-EG')}{' '}
+                                {isAdminEn ? 'EGP' : 'ج.م'}
+                              </p>
                             )}
                             <p className="text-lg font-bold text-primary">
-                              {product.price.toLocaleString('ar-EG')} ج.م
+                              {product.price.toLocaleString(isAdminEn ? 'en-US' : 'ar-EG')}{' '}
+                              {isAdminEn ? 'EGP' : 'ج.م'}
                             </p>
                           </div>
                           <div className="flex gap-2">
