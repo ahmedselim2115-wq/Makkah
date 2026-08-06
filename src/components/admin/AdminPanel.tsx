@@ -46,6 +46,12 @@ export function AdminPanel({ onClose, onSiteUpdate }: AdminPanelProps) {
   const { user, loading: authLoading, hasPermission, logout, refreshUser } = useAuth()
   const { t, locale, setLocale } = useAdminLanguage()
   const isAdminEn = locale === 'en'
+  const KNOWN_NAME_TRANSLATIONS: Record<string, string> = {
+  'المدير الرئيسي': 'Super Admin',
+  }
+  const displayUserName = isAdminEn && user
+    ? KNOWN_NAME_TRANSLATIONS[user.name] || user.name
+    : user?.name
   const [activeTab, setActiveTab] = useState<TabType>('dashboard')
   const [products, setProducts] = useState<Product[]>([])
   const [settings, setSettings] = useState<SiteSettings | null>(null)
@@ -241,7 +247,7 @@ export function AdminPanel({ onClose, onSiteUpdate }: AdminPanelProps) {
             <div className="flex items-center gap-2">
               <div className="hidden sm:flex items-center gap-1.5 text-sm text-muted-foreground ml-2">
                 {user.isSuperAdmin && <ShieldCheck className="w-4 h-4 text-primary" />}
-                <span className="font-medium text-foreground">{user.name}</span>
+                <span className="font-medium text-foreground">{displayUserName}</span>
               </div>
               <Button
                 variant="outline"
