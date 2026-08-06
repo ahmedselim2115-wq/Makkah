@@ -599,14 +599,14 @@ export function AdminPanel({ onClose, onSiteUpdate }: AdminPanelProps) {
                           {t('settings_hero_section')}
                         </h3>
                         <div className="space-y-2 text-sm">
-                          <div>
-                            <span className="text-muted-foreground">{t('settings_hero_title_label')}</span>
-                            <p className="font-medium">{settings.heroTitle}</p>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">{t('settings_hero_subtitle_label')}</span>
-                            <p className="font-medium line-clamp-2">{settings.heroSubtitle}</p>
-                          </div>
+                         <div>
+                          <span className="text-muted-foreground">{t('settings_hero_title_label')}</span>
+                          <p className="font-medium">{isAdminEn && settings.heroTitleEn ? settings.heroTitleEn : settings.heroTitle}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">{t('settings_hero_subtitle_label')}</span>
+                          <p className="font-medium line-clamp-2">{isAdminEn && settings.heroSubtitleEn ? settings.heroSubtitleEn : settings.heroSubtitle}</p>
+                        </div>
                         </div>
                       </CardContent>
                     </Card>

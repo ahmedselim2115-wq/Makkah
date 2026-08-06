@@ -54,7 +54,7 @@ export default function RatingsPage() {
         body: JSON.stringify({ status }),
       })
       if (res.ok) {
-        toast.success(status === 'approved' ? 'تم قبول التقييم' : 'تم رفض التقييم')
+        toast.success(status === 'approved' ? t('ratings_approved_toast') : t('ratings_rejected_toast'))
         setRatings((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)))
       } else {
         toast.error(t('admin_error'))
@@ -92,12 +92,12 @@ export default function RatingsPage() {
   }
 
   const statusBadge = (status: Rating['status']) => {
-    if (status === 'approved')
-      return <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700 font-medium">مقبول</span>
-    if (status === 'rejected')
-      return <span className="text-xs px-2 py-1 rounded-full bg-red-100 text-red-700 font-medium">مرفوض</span>
-    return <span className="text-xs px-2 py-1 rounded-full bg-amber-100 text-amber-700 font-medium">قيد المراجعة</span>
-  }
+  if (status === 'approved')
+    return <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700 font-medium">{t('ratings_tab_approved')}</span>
+  if (status === 'rejected')
+    return <span className="text-xs px-2 py-1 rounded-full bg-red-100 text-red-700 font-medium">{t('ratings_tab_rejected')}</span>
+  return <span className="text-xs px-2 py-1 rounded-full bg-amber-100 text-amber-700 font-medium">{t('ratings_tab_pending')}</span>
+}
 
   return (
     <div className="p-6 space-y-6">
@@ -110,11 +110,11 @@ export default function RatingsPage() {
 
       {/* تبويبات الفلترة */}
       <div className="flex gap-2 flex-wrap border-b pb-3">
-        {([
-          { key: 'pending', label: `قيد المراجعة (${counts.pending})` },
-          { key: 'approved', label: `مقبول (${counts.approved})` },
-          { key: 'rejected', label: `مرفوض (${counts.rejected})` },
-          { key: 'all', label: `الكل (${counts.all})` },
+       {([
+          { key: 'pending', label: `${t('ratings_tab_pending')} (${counts.pending})` },
+          { key: 'approved', label: `${t('ratings_tab_approved')} (${counts.approved})` },
+          { key: 'rejected', label: `${t('ratings_tab_rejected')} (${counts.rejected})` },
+          { key: 'all', label: `${t('ratings_tab_all')} (${counts.all})` },
         ] as { key: FilterType; label: string }[]).map((tab) => (
           <button
             key={tab.key}

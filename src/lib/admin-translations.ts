@@ -318,6 +318,13 @@ export const adminTranslations = {
     perm_users_manage: 'إدارة المستخدمين',
     perm_settings_manage: 'إدارة إعدادات الموقع',
 
+      ratings_tab_pending: { ar: 'قيد المراجعة', en: 'Pending' },
+  ratings_tab_approved: { ar: 'مقبول', en: 'Approved' },
+  ratings_tab_rejected: { ar: 'مرفوض', en: 'Rejected' },
+  ratings_tab_all: { ar: 'الكل', en: 'All' },
+  ratings_approved_toast: { ar: 'تم قبول التقييم', en: 'Rating approved' },
+  ratings_rejected_toast: { ar: 'تم رفض التقييم', en: 'Rating rejected' },
+
     lang_switch: 'English',
   },
   en: {
@@ -631,6 +638,13 @@ export const adminTranslations = {
     perm_whatsapp_manage: 'Manage WhatsApp Settings',
     perm_users_manage: 'Manage Users',
     perm_settings_manage: 'Manage Site Settings',
+
+    ratings_tab_pending: { ar: 'قيد المراجعة', en: 'Pending' },
+    ratings_tab_approved: { ar: 'مقبول', en: 'Approved' },
+    ratings_tab_rejected: { ar: 'مرفوض', en: 'Rejected' },
+    ratings_tab_all: { ar: 'الكل', en: 'All' },
+    ratings_approved_toast: { ar: 'تم قبول التقييم', en: 'Rating approved' },
+    ratings_rejected_toast: { ar: 'تم رفض التقييم', en: 'Rating rejected' },
 
     lang_switch: 'العربية',
   },
