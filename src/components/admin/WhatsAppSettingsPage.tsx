@@ -7,7 +7,8 @@ import { toast } from 'sonner'
 import { useAdminLanguage } from '@/contexts/AdminLanguageContext'
 
 export default function WhatsAppSettingsPage({ onSaved }: { onSaved?: () => void }) {
-  const { t } = useAdminLanguage()
+  const { t, locale } = useAdminLanguage()
+  const isAdminEn = locale === 'en'
   const [phone, setPhone] = useState('')
   const [enabled, setEnabled] = useState(true)
   const [welcomeMessage, setWelcomeMessage] = useState('')
@@ -111,19 +112,32 @@ export default function WhatsAppSettingsPage({ onSaved }: { onSaved?: () => void
           />
         </div>
 
-        <div className="space-y-1.5">
-          <label className="text-sm font-medium">{t('whatsapp_settings_welcome_label')}</label>
-          <textarea
-            value={welcomeMessage}
-            onChange={(e) => setWelcomeMessage(e.target.value)}
-            rows={3}
-            className="w-full px-3 py-2 rounded-lg border text-sm resize-none"
-            placeholder={t('whatsapp_settings_default_welcome')}
-          />
-          <p className="text-xs text-muted-foreground">
-            {t('whatsapp_settings_welcome_hint')}
-          </p>
+         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">{t('whatsapp_settings_welcome_label')} (عربي)</label>
+            <textarea
+              value={welcomeMessage}
+              onChange={(e) => setWelcomeMessage(e.target.value)}
+              rows={3}
+              className="w-full px-3 py-2 rounded-lg border text-sm resize-none"
+              placeholder={t('whatsapp_settings_default_welcome')}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">{t('whatsapp_settings_welcome_label')} (English)</label>
+            <textarea
+              value={welcomeMessageEn}
+              onChange={(e) => setWelcomeMessageEn(e.target.value)}
+              rows={3}
+              dir="ltr"
+              className="w-full px-3 py-2 rounded-lg border text-sm resize-none"
+              placeholder="Welcome! How can we help you today?"
+            />
+          </div>
         </div>
+        <p className="text-xs text-muted-foreground">
+          {t('whatsapp_settings_welcome_hint')}
+        </p>
 
         <Button
           onClick={handleSave}
@@ -151,23 +165,28 @@ export default function WhatsAppSettingsPage({ onSaved }: { onSaved?: () => void
         </Button>
       </div>
 
-      {/* معاينة */}
-      <div className="rounded-xl border bg-white p-6">
-        <p className="font-medium mb-3 flex items-center gap-2">
-          <MessageCircle className="w-4 h-4 text-[#25D366]" />
-          {t('whatsapp_settings_preview')}
-        </p>
-        <div className="w-72 rounded-2xl overflow-hidden shadow-lg">
-          <div className="bg-[#25D366] px-3 py-3">
-            <p className="text-white font-bold text-sm">{t('whatsapp_settings_contact_us')}</p>
-          </div>
-          <div className="bg-[#0b141a] p-3">
-            <div className="bg-[#1f2c33] text-white text-xs rounded-xl p-2.5">
-              {welcomeMessage || t('whatsapp_settings_default_welcome')}
+        {/* معاينة */}
+        <div className="rounded-xl border bg-white p-6">
+          <p className="font-medium mb-3 flex items-center gap-2">
+            <MessageCircle className="w-4 h-4 text-[#25D366]" />
+            {t('whatsapp_settings_preview')}
+          </p>
+          <div className="w-72 rounded-2xl overflow-hidden shadow-lg">
+            <div className="bg-[#25D366] px-3 py-3">
+              <p className="text-white font-bold text-sm">{t('whatsapp_settings_contact_us')}</p>
+            </div>
+            <div className="bg-[#0b141a] p-3">
+              <div
+                className="bg-[#1f2c33] text-white text-xs rounded-xl p-2.5"
+                dir={isAdminEn ? 'ltr' : 'rtl'}
+              >
+                {isAdminEn
+                  ? welcomeMessageEn || welcomeMessage || 'Welcome! How can we help you today?'
+                  : welcomeMessage || t('whatsapp_settings_default_welcome')}
+              </div>
             </div>
           </div>
         </div>
-      </div>
     </div>
   )
 }
