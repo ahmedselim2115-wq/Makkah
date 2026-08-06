@@ -327,7 +327,7 @@ export default function ShowcaseSection({ settings }: ShowcaseSectionProps) {
                 ref={cardRef}
                 key={h.id}
                 dir={dir}
-                className={`absolute z-40 w-[75vw] max-w-56 bg-slate-900/95 rounded-xl p-3 shadow-lg animate-in fade-in zoom-in duration-300 ${
+                className={`absolute z-40 w-[85vw] max-w-72 bg-slate-900/95 backdrop-blur-md border border-blue-500/30 rounded-2xl p-4 md:p-5 shadow-[0_8px_30px_rgba(0,0,0,0.4)] animate-in fade-in zoom-in duration-300 ${
                   isDragging ? "cursor-grabbing" : "cursor-grab"
                 }`}
                  style={{
@@ -339,23 +339,32 @@ export default function ShowcaseSection({ settings }: ShowcaseSectionProps) {
                 onMouseDown={handleDragStart}
                 onTouchStart={(e) => handleDragStart(e as any)}
               >
+                <div className="absolute top-0 right-4 left-4 h-[2px] bg-gradient-to-r from-blue-500 via-blue-400 to-transparent rounded-full" />
+
                 <button
                   onClick={() => {
                     setDragOffset({ x: 0, y: 0 });
                     setActiveHotspot(null);
                   }}
                   onMouseDown={(e) => e.stopPropagation()}
-                  className="absolute top-2 left-2 text-slate-500 hover:text-white transition-colors"
+                  className="absolute top-3 left-3 text-slate-500 hover:text-white hover:bg-slate-800 rounded-full p-1 transition-colors"
                 >
-                  <X size={13} />
+                  <X size={14} />
                 </button>
 
-                <h4 className="text-white font-semibold text-sm mb-1 pl-4">
-                  {getTitle(h)}
-                </h4>
-                <p className="text-slate-400 text-xs leading-relaxed">
-                  {getDescription(h)}
-                </p>
+                <div className="flex items-start gap-3">
+                  <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-blue-500/15 border border-blue-500/30 flex items-center justify-center mt-0.5">
+                    <Plus size={14} className="text-blue-400" />
+                  </span>
+                  <div className="flex-1 pl-2">
+                    <h4 className="text-white font-semibold text-sm md:text-base mb-1 md:mb-1.5">
+                      {getTitle(h)}
+                    </h4>
+                    <p className="text-slate-400 text-xs md:text-sm leading-relaxed">
+                      {getDescription(h)}
+                    </p>
+                  </div>
+                </div>
               </div>
             ))}
         </div>
