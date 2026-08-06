@@ -50,7 +50,7 @@ const displayTitle = isEn
           <div className="bg-[#25D366] px-4 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-lg">
-                {(settings?.heroTitle || 'M').charAt(0)}
+                {displayTitle.charAt(0)}
               </div>
               <div>
               <p className="text-white font-bold text-sm">
