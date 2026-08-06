@@ -3,12 +3,15 @@
 import { useState } from 'react'
 import { MessageCircle, X, Send } from 'lucide-react'
 import type { SiteSettings } from '@/lib/types'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 interface WhatsAppWidgetProps {
   settings?: SiteSettings | null
 }
 
 export function WhatsAppWidget({ settings }: WhatsAppWidgetProps) {
+  const { locale } = useLanguage()
+  const isEn = locale === 'en'
   const [open, setOpen] = useState(false)
   const [message, setMessage] = useState('')
 
@@ -21,13 +24,18 @@ export function WhatsAppWidget({ settings }: WhatsAppWidgetProps) {
   }
 
   const isEnabled = settings?.whatsappWidgetEnabled !== false
-  const welcomeMessage =
-    settings?.whatsappWelcomeMessage?.trim() || 'مرحباً بك! كيف يمكننا مساعدتك اليوم؟'
+const welcomeMessage = isEn
+  ? settings?.whatsappWelcomeMessageEn?.trim() || settings?.whatsappWelcomeMessage?.trim() || 'Welcome! How can we help you today?'
+  : settings?.whatsappWelcomeMessage?.trim() || 'مرحباً بك! كيف يمكننا مساعدتك اليوم؟'
+
+const displayTitle = isEn
+  ? settings?.heroTitleEn?.trim() || settings?.heroTitle?.trim() || 'Contact Us'
+  : settings?.heroTitle?.trim() || 'تواصل معنا'
 
   if (!cleanNumber || !isEnabled) return null
 
   function handleSend() {
-    const text = message.trim() || 'مرحباً، أريد الاستفسار'
+  const text = message.trim() || (isEn ? 'Hello, I would like to ask about' : 'مرحباً، أريد الاستفسار')
     const encoded = encodeURIComponent(text)
     window.open(`https://wa.me/${cleanNumber}?text=${encoded}`, '_blank')
     setMessage('')
@@ -45,20 +53,20 @@ export function WhatsAppWidget({ settings }: WhatsAppWidgetProps) {
                 {(settings?.heroTitle || 'M').charAt(0)}
               </div>
               <div>
-                <p className="text-white font-bold text-sm">
-                  {settings?.heroTitle || 'تواصل معنا'}
-                </p>
-                <p className="container text-white/90 text-xs flex items-center gap-1 p-0">
-                  <span className="w-2 h-2 rounded-full bg-green-300 inline-block" />
-                  نشط الآن
-                </p>
-              </div>
+              <p className="text-white font-bold text-sm">
+                {displayTitle}
+              </p>
+              <p className="container text-white/90 text-xs flex items-center gap-1 p-0">
+                <span className="w-2 h-2 rounded-full bg-green-300 inline-block" />
+                {isEn ? 'Active now' : 'نشط الآن'}
+              </p>
+            </div>
             </div>
             <button
-              onClick={() => setOpen(false)}
-              className="text-white/90 hover:text-white"
-              aria-label="إغلاق"
-            >
+                  onClick={() => setOpen(false)}
+                  className="text-white/90 hover:text-white"
+                  aria-label={isEn ? 'Close' : 'إغلاق'}
+                >
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -78,21 +86,22 @@ export function WhatsAppWidget({ settings }: WhatsAppWidgetProps) {
               <Send className="w-4 h-4 text-white -scale-x-100" />
             </button>
             <input
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="اكتب رسالتك..."
-              className="flex-1 bg-[#1f2c33] text-white text-sm rounded-full px-4 py-2.5 outline-none placeholder:text-white/40"
-            />
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                placeholder={isEn ? 'Type your message...' : 'اكتب رسالتك...'}
+                dir={isEn ? 'ltr' : 'rtl'}
+                className="flex-1 bg-[#1f2c33] text-white text-sm rounded-full px-4 py-2.5 outline-none placeholder:text-white/40"
+              />
           </div>
         </div>
       )}
 
       <button
-        onClick={() => setOpen((v) => !v)}
-        className="w-14 h-14 rounded-full bg-[#25D366] shadow-xl flex items-center justify-center hover:scale-105 transition-transform"
-        aria-label="تواصل عبر واتساب"
-      >
+              onClick={() => setOpen((v) => !v)}
+              className="w-14 h-14 rounded-full bg-[#25D366] shadow-xl flex items-center justify-center hover:scale-105 transition-transform"
+              aria-label={isEn ? 'Contact via WhatsApp' : 'تواصل عبر واتساب'}
+            >
         {open ? (
           <X className="w-6 h-6 text-white" />
         ) : (

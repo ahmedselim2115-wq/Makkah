@@ -11,6 +11,7 @@ export default function WhatsAppSettingsPage({ onSaved }: { onSaved?: () => void
   const [phone, setPhone] = useState('')
   const [enabled, setEnabled] = useState(true)
   const [welcomeMessage, setWelcomeMessage] = useState('')
+  const [welcomeMessageEn, setWelcomeMessageEn] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [justSaved, setJustSaved] = useState(false)
@@ -24,6 +25,7 @@ export default function WhatsAppSettingsPage({ onSaved }: { onSaved?: () => void
         setPhone(s?.whatsapp || '')
         setEnabled(s?.whatsappWidgetEnabled !== false)
         setWelcomeMessage(s?.whatsappWelcomeMessage || t('whatsapp_settings_default_welcome'))
+        setWelcomeMessageEn(s?.whatsappWelcomeMessageEn || '')
       } catch {
         toast.error(t('whatsapp_settings_load_error'))
       } finally {
@@ -40,10 +42,11 @@ export default function WhatsAppSettingsPage({ onSaved }: { onSaved?: () => void
       const res = await fetch('/api/settings', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+       body: JSON.stringify({
           whatsapp: phone,
           whatsappWidgetEnabled: enabled,
           whatsappWelcomeMessage: welcomeMessage,
+          whatsappWelcomeMessageEn: welcomeMessageEn,
         }),
       })
       if (res.ok) {
