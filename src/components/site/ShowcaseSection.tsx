@@ -327,7 +327,7 @@ export default function ShowcaseSection({ settings }: ShowcaseSectionProps) {
                 ref={cardRef}
                 key={h.id}
                 dir={dir}
-                className={`absolute z-40 w-[85vw] max-w-72 bg-slate-900/95 backdrop-blur-md border border-blue-500/30 rounded-2xl p-4 md:p-5 shadow-[0_8px_30px_rgba(0,0,0,0.4)] animate-in fade-in zoom-in duration-300 ${
+                className={`absolute z-40 w-[70vw] max-w-52 bg-slate-900/95 backdrop-blur-md border border-blue-500/30 rounded-xl p-3 shadow-[0_8px_30px_rgba(0,0,0,0.4)] animate-in fade-in zoom-in duration-300 ${
                   isDragging ? "cursor-grabbing" : "cursor-grab"
                 }`}
                  style={{
@@ -352,15 +352,15 @@ export default function ShowcaseSection({ settings }: ShowcaseSectionProps) {
                   <X size={14} />
                 </button>
 
-                <div className="flex items-start gap-3">
-                  <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-blue-500/15 border border-blue-500/30 flex items-center justify-center mt-0.5">
-                    <Plus size={14} className="text-blue-400" />
+               <div className="flex items-start gap-2">
+                  <span className="flex-shrink-0 w-6 h-6 rounded-md bg-blue-500/15 border border-blue-500/30 flex items-center justify-center mt-0.5">
+                    <Plus size={11} className="text-blue-400" />
                   </span>
                   <div className="flex-1 pl-2">
-                    <h4 className="text-white font-semibold text-sm md:text-base mb-1 md:mb-1.5">
+                    <h4 className="text-white font-semibold text-xs mb-1">
                       {getTitle(h)}
                     </h4>
-                    <p className="text-slate-400 text-xs md:text-sm leading-relaxed">
+                    <p className="text-slate-400 text-[11px] leading-relaxed">
                       {getDescription(h)}
                     </p>
                   </div>
