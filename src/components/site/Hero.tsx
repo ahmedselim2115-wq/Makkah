@@ -132,9 +132,9 @@ export function Hero({ settings }: HeroProps) {
             </div>
           </div>
           <div className="flex items-center justify-center gap-6 py-4">
-            <button
-              onClick={goToNext}
-              aria-label={t('hero_next_image')}
+           <button
+              onClick={goToPrev}
+              aria-label={t('hero_prev_image')}
               className="text-white/80 hover:text-white transition-colors"
             >
               <ChevronRight className="w-5 h-5" />
@@ -149,8 +149,8 @@ export function Hero({ settings }: HeroProps) {
             </button>
             <span className="w-px h-4 bg-white/30" />
             <button
-              onClick={goToPrev}
-              aria-label={t('hero_prev_image')}
+              onClick={goToNext}
+              aria-label={t('hero_next_image')}
               className="text-white/80 hover:text-white transition-colors"
             >
               <ChevronLeft className="w-5 h-5" />
