@@ -68,3 +68,21 @@ export async function PUT(
     return NextResponse.json({ error: 'فشل في تحديث المنتج' }, { status: 500 })
   }
 }
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const user = await getCurrentUser()
+  if (!hasPermission(user, 'products.delete')) {
+    return NextResponse.json({ error: 'غير مصرح لك بهذا الإجراء' }, { status: 403 })
+  }
+  try {
+    const { id } = await params
+    await db.product.delete({ where: { id } })
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('Error deleting product:', error)
+    return NextResponse.json({ error: 'فشل في حذف المنتج' }, { status: 500 })
+  }
+}
