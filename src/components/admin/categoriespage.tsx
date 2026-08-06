@@ -12,7 +12,8 @@ type Category = { id: string; name: string; nameEn: string | null }
 
 export default function CategoriesPage() {
   const { hasPermission } = useAuth()
-  const { t } = useAdminLanguage()
+  const { t, locale } = useAdminLanguage()
+  const isAdminEn = locale === 'en'
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -150,11 +151,21 @@ export default function CategoriesPage() {
               ) : (
                 <>
                   <div className="flex flex-col">
-                    <span className="font-medium">{cat.name}</span>
-                    {cat.nameEn && (
-                      <span className="text-xs text-muted-foreground">{cat.nameEn}</span>
-                    )}
-                  </div>
+                      <span className="font-medium">
+                        {isAdminEn && cat.nameEn ? cat.nameEn : cat.name}
+                      </span>
+                      {isAdminEn && cat.nameEn ? (
+                        <span className="text-xs text-muted-foreground" dir="rtl">
+                          {cat.name}
+                        </span>
+                      ) : (
+                        cat.nameEn && (
+                          <span className="text-xs text-muted-foreground" dir="ltr">
+                            {cat.nameEn}
+                          </span>
+                        )
+                      )}
+                    </div>
                   <div className="flex gap-1">
                     {canEdit && (
                       <Button
