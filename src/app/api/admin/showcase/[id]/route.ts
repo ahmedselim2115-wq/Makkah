@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db as prisma } from "@/lib/db";
-import { hasPermission } from "@/lib/auth"
+import { hasPermission, getCurrentUser } from "@/lib/auth"
 
 export async function PUT(
   req: NextRequest,
@@ -65,6 +65,11 @@ export async function DELETE(
   }
 
   try {
+    // نمسح النقاط المرتبطة الأول بشكل صريح، احتياطاً لو الـ cascade مش مفعّل فعلياً على الداتابيز
+    await prisma.showcaseHotspot.deleteMany({
+      where: { showcaseProductId: id },
+    });
+
     await prisma.showcaseProduct.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error) {
