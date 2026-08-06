@@ -26,7 +26,8 @@ interface ShowcaseProduct {
 }
 
 export default function ShowcaseForm() {
-  const { t } = useAdminLanguage();
+  const { t, locale } = useAdminLanguage();
+  const isAdminEn = locale === "en";
   const [products, setProducts] = useState<ShowcaseProduct[]>([]);
   const [editing, setEditing] = useState<ShowcaseProduct | null>(null);
   const [placingMode, setPlacingMode] = useState(false);
@@ -176,16 +177,18 @@ export default function ShowcaseForm() {
               className="border rounded-xl p-3 bg-white shadow-sm flex flex-col gap-2"
             >
               <img
-                src={p.image}
-                alt={p.name}
-                className="w-full h-32 object-contain bg-slate-50 rounded-lg"
-              />
-              <div className="font-semibold">{p.name}</div>
-              {p.nameEn && (
-                <div className="text-xs text-slate-400" dir="ltr">
-                  {p.nameEn}
+                  src={p.image}
+                  alt={p.name}
+                  className="w-full h-32 object-contain bg-slate-50 rounded-lg"
+                />
+                <div className="font-semibold">
+                  {isAdminEn && p.nameEn ? p.nameEn : p.name}
                 </div>
-              )}
+                {!isAdminEn && p.nameEn && (
+                  <div className="text-xs text-slate-400" dir="ltr">
+                    {p.nameEn}
+                  </div>
+                )}
               <div className="text-sm text-slate-500">
                 {p.hotspots.length} {t("showcase_hotspots_count")}
               </div>
