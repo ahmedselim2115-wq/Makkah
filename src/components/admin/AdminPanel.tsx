@@ -44,14 +44,15 @@ type TabType = 'dashboard' | 'products' | 'categories' | 'users' | 'settings' | 
 
 export function AdminPanel({ onClose, onSiteUpdate }: AdminPanelProps) {
   const { user, loading: authLoading, hasPermission, logout, refreshUser } = useAuth()
-  const { t, locale, setLocale } = useAdminLanguage()
-  const isAdminEn = locale === 'en'
-  const KNOWN_NAME_TRANSLATIONS: Record<string, string> = {
+ const { t, locale, setLocale } = useAdminLanguage()
+const isAdminEn = locale === 'en'
+
+const KNOWN_NAME_TRANSLATIONS: Record<string, string> = {
   'المدير الرئيسي': 'Super Admin',
-  }
-  const displayUserName = isAdminEn && user
-    ? KNOWN_NAME_TRANSLATIONS[user.name] || user.name
-    : user?.name
+}
+const displayUserName = isAdminEn && user
+  ? KNOWN_NAME_TRANSLATIONS[user.name] || user.name
+  : user?.name
   const [activeTab, setActiveTab] = useState<TabType>('dashboard')
   const [products, setProducts] = useState<Product[]>([])
   const [settings, setSettings] = useState<SiteSettings | null>(null)
