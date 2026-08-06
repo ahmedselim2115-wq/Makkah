@@ -58,6 +58,7 @@ const displayUserName = isAdminEn && user
   const [settings, setSettings] = useState<SiteSettings | null>(null)
   const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(false)
+  const [refreshKey, setRefreshKey] = useState(0)
 
   // حالات النماذج
   const [showProductForm, setShowProductForm] = useState(false)
@@ -95,11 +96,12 @@ const displayUserName = isAdminEn && user
     }
   }, [t])
 
-  const loadAll = useCallback(async () => {
-    setLoading(true)
-    await Promise.all([fetchProducts(), fetchSettings(), fetchStats()])
-    setLoading(false)
-  }, [fetchProducts, fetchSettings, fetchStats])
+ const loadAll = useCallback(async () => {
+  setLoading(true)
+  await Promise.all([fetchProducts(), fetchSettings(), fetchStats()])
+  setLoading(false)
+  setRefreshKey((k) => k + 1)
+}, [fetchProducts, fetchSettings, fetchStats])
 
   // لما نتأكد إن فيه مستخدم مسجل دخول (من الكوكي)، نجيب البيانات
   useEffect(() => {
@@ -443,7 +445,7 @@ const displayUserName = isAdminEn && user
             )}
 
             {/* العرض التفاعلي للمنتجات */}
-            {activeTab === 'showcase' && <ShowcaseForm />}
+            {activeTab === 'showcase' && <ShowcaseForm key={refreshKey} />}
 
             {/* إدارة المنتجات */}
             {activeTab === 'products' && canSeeProducts && (
@@ -571,14 +573,11 @@ const displayUserName = isAdminEn && user
               </div>
             )}
 
-            {/* إدارة الفئات */}
-            {activeTab === 'categories' && canSeeCategories && <CategoriesPage />}
-
-            {/* إدارة المستخدمين */}
-            {activeTab === 'users' && canSeeUsers && <UsersPage />}
-            {activeTab === 'orders' && canSeeOrders && <OrdersPage />}
-            {activeTab === 'ratings' && canSeeRatings && <RatingsPage />}
-            {activeTab === 'whatsapp' && <WhatsAppSettingsPage onSaved={onSiteUpdate} />}
+            {activeTab === 'categories' && canSeeCategories && <CategoriesPage key={refreshKey} />}
+            {activeTab === 'users' && canSeeUsers && <UsersPage key={refreshKey} />}
+            {activeTab === 'orders' && canSeeOrders && <OrdersPage key={refreshKey} />}
+            {activeTab === 'ratings' && canSeeRatings && <RatingsPage key={refreshKey} />}
+            {activeTab === 'whatsapp' && <WhatsAppSettingsPage key={refreshKey} onSaved={onSiteUpdate} />}
 
             {/* الإعدادات */}
             {activeTab === 'settings' && (
