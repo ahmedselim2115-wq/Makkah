@@ -79,7 +79,7 @@ export function ContactSection({ settings }: ContactSectionProps) {
                 </div>
                 <h3 className="text-xl font-bold mb-1">{t('contact_visit_us')}</h3>
                 <p className="text-muted-foreground text-sm max-w-md mx-auto">
-                  {settings?.address || 'مكة المكرمة، المملكة العربية السعودية - المنطقة الصناعية'}
+                  {settings?.address || ''}
                 </p>
               </div>
               <div className="flex-1 min-h-[280px]">
