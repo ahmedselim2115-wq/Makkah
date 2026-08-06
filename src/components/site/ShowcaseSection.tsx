@@ -347,7 +347,9 @@ export default function ShowcaseSection({ settings }: ShowcaseSectionProps) {
                     setActiveHotspot(null);
                   }}
                   onMouseDown={(e) => e.stopPropagation()}
-                  className="absolute top-3 left-3 text-slate-500 hover:text-white hover:bg-slate-800 rounded-full p-1 transition-colors"
+                  className={`absolute top-3 text-slate-500 hover:text-white hover:bg-slate-800 rounded-full p-1 transition-colors ${
+                    isEn ? "right-3" : "left-3"
+                  }`}
                 >
                   <X size={14} />
                 </button>
