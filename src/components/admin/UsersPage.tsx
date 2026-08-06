@@ -18,9 +18,18 @@ type ManagedUser = {
   permissions: string[]
 }
 
+const KNOWN_NAME_TRANSLATIONS: Record<string, string> = {
+  'المدير الرئيسي': 'Super Admin',
+}
+
+function translateKnownName(name: string, isEn: boolean) {
+  return isEn && KNOWN_NAME_TRANSLATIONS[name] ? KNOWN_NAME_TRANSLATIONS[name] : name
+}
+
 export default function UsersPage() {
   const { hasPermission } = useAuth()
-  const { t } = useAdminLanguage()
+  const { t, locale } = useAdminLanguage()
+  const isAdminEn = locale === 'en'
   const [users, setUsers] = useState<ManagedUser[]>([])
   const [loading, setLoading] = useState(true)
   const [editingUser, setEditingUser] = useState<ManagedUser | null>(null)
@@ -84,7 +93,7 @@ export default function UsersPage() {
             >
               <div>
                 <div className="flex items-center gap-2 font-medium">
-                  {u.name}
+                  {translateKnownName(u.name, isAdminEn)}
                   {u.isSuperAdmin && <ShieldCheck className="w-4 h-4 text-primary" />}
                   {!u.isActive && (
                     <span className="text-xs text-red-500 bg-red-50 px-2 py-0.5 rounded-full">
