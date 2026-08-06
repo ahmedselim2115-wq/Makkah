@@ -137,7 +137,7 @@ export function Hero({ settings }: HeroProps) {
               aria-label={t('hero_prev_image')}
               className="text-white/80 hover:text-white transition-colors"
             >
-              <ChevronRight className="w-5 h-5" />
+              <ChevronLeft className="w-5 h-5" />
             </button>
             <span className="w-px h-4 bg-white/30" />
             <button
@@ -153,7 +153,7 @@ export function Hero({ settings }: HeroProps) {
               aria-label={t('hero_next_image')}
               className="text-white/80 hover:text-white transition-colors"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronRight className="w-5 h-5" />
             </button>
           </div>
         </div>
