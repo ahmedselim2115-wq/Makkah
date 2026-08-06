@@ -133,28 +133,28 @@ export function Hero({ settings }: HeroProps) {
           </div>
           <div className="flex items-center justify-center gap-6 py-4">
            <button
-              onClick={goToPrev}
-              aria-label={t('hero_prev_image')}
-              className="text-white/80 hover:text-white transition-colors"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <span className="w-px h-4 bg-white/30" />
-            <button
-              onClick={() => setIsPlaying((p) => !p)}
-              aria-label={isPlaying ? t('hero_pause') : t('hero_play')}
-              className="text-white/80 hover:text-white transition-colors"
-            >
-              {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-            </button>
-            <span className="w-px h-4 bg-white/30" />
-            <button
-              onClick={goToNext}
-              aria-label={t('hero_next_image')}
-              className="text-white/80 hover:text-white transition-colors"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
+            onClick={goToPrev}
+            aria-label={t('hero_prev_image')}
+            className="text-white/80 hover:text-white transition-colors"
+          >
+            {locale === 'en' ? <ChevronLeft className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
+          </button>
+          <span className="w-px h-4 bg-white/30" />
+          <button
+            onClick={() => setIsPlaying((p) => !p)}
+            aria-label={isPlaying ? t('hero_pause') : t('hero_play')}
+            className="text-white/80 hover:text-white transition-colors"
+          >
+            {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+          </button>
+          <span className="w-px h-4 bg-white/30" />
+          <button
+            onClick={goToNext}
+            aria-label={t('hero_next_image')}
+            className="text-white/80 hover:text-white transition-colors"
+          >
+            {locale === 'en' ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
+          </button>
           </div>
         </div>
       )}
