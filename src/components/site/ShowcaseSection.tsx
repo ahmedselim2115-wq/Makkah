@@ -359,7 +359,7 @@ export default function ShowcaseSection({ settings }: ShowcaseSectionProps) {
                     <Plus size={11} className="text-blue-400" />
                   </span>
                   <div className="flex-1 pl-2">
-                    <h4 className="text-white font-semibold text-xs mb-1">
+                    <h4 className={`text-white font-semibold text-xs mb-1 ${isEn ? "pr-5" : "pl-5"}`}>
                       {getTitle(h)}
                     </h4>
                     <p className="text-slate-400 text-[11px] leading-relaxed">
