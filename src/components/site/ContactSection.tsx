@@ -31,7 +31,7 @@ export function ContactSection({ settings }: ContactSectionProps) {
     { icon: Clock, title: t('contact_working_hours'), value: settings?.workingHours || 'السبت - الخميس: 9 صباحاً - 6 مساءً' },
   ]
 
-  const mapQuery = settings?.mapLocation?.trim() || settings?.address?.trim() || 'مكة المكرمة، المملكة العربية السعودية'
+  const mapQuery = settings?.mapLocation?.trim() || settings?.address?.trim() || 'القاهرة، مصر'
   const mapEmbedUrl = useMemo(() => `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed`, [mapQuery])
 
   return ( 
