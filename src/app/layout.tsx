@@ -18,18 +18,52 @@ const tajawal = Tajawal({
 });
 
 export const metadata: Metadata = {
-  title: "مصنع مكة للثلاجات ",
-  description: "مصنع مكة للثلاجات - متخصصون في تصنيع الثلاجات التجارية والصناعية والمجوهرات التبريدية بأحدث التقنيات وأعلى معايير الجودة.",
-  keywords: ["مصنع مكة", "ثلاجات", "ثلاجات تجارية", "ثلاجات صناعية", "تبريد", "مكة"],
+  metadataBase: new URL("https://makkahrefrigerators.com"),
+  title: {
+    default: "مصنع مكة للثلاجات | ثلاجات تجارية وصناعية بالقاهرة",
+    template: "%s | مصنع مكة للثلاجات",
+  },
+  description: "مصنع مكة للثلاجات - متخصصون في تصنيع الثلاجات التجارية والصناعية وغرف التبريد بأحدث التقنيات وأعلى معايير الجودة في مصر.",
+  keywords: [
+    "مصنع مكة للثلاجات",
+    "ثلاجات تجارية",
+    "ثلاجات عرض",
+    "ثلاجات صناعية",
+    "غرف تبريد",
+    "ثلاجات لحوم",
+    "تبريد القاهرة",
+    "ثلاجات مصر",
+  ],
   authors: [{ name: "مصنع مكة للثلاجات" }],
   icons: {
     icon: '/logo.png',
   },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+    },
+  },
+  alternates: {
+    canonical: "https://makkahrefrigerators.com",
+  },
   openGraph: {
     title: "مصنع مكة للثلاجات",
-    description: "التبريد الحديثة - حلول تبريد متكاملة",
+    description: "حلول تبريد متكاملة - ثلاجات تجارية وصناعية بأحدث التقنيات",
+    url: "https://makkahrefrigerators.com",
+    siteName: "مصنع مكة للثلاجات",
+    images: ["/logo.png"],
     type: "website",
-    locale: "ar_SA",
+    locale: "ar_EG",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "مصنع مكة للثلاجات",
+    description: "حلول تبريد متكاملة - ثلاجات تجارية وصناعية بأحدث التقنيات",
+    images: ["/logo.png"],
   },
 };
 
