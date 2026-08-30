@@ -1,12 +1,31 @@
 User-agent: Googlebot
 Allow: /
+Allow: /api/products
+Allow: /api/settings
+Allow: /api/showcase
+Allow: /api/categories
 Disallow: /admin
-Disallow: /api
+Disallow: /api/admin
+Disallow: /api/orders
+Disallow: /api/users
+Disallow: /api/login
+Disallow: /api/logout
+Disallow: /api/me
+Disallow: /api/upload
+Disallow: /api/ratings
+Disallow: /api/stats
+Disallow: /api/files
 
 User-agent: Bingbot
 Allow: /
+Allow: /api/products
+Allow: /api/settings
+Allow: /api/showcase
+Allow: /api/categories
 Disallow: /admin
-Disallow: /api
+Disallow: /api/admin
+Disallow: /api/orders
+Disallow: /api/users
 
 User-agent: Twitterbot
 Allow: /
@@ -16,7 +35,20 @@ Allow: /
 
 User-agent: *
 Allow: /
+Allow: /api/products
+Allow: /api/settings
+Allow: /api/showcase
+Allow: /api/categories
 Disallow: /admin
-Disallow: /api
+Disallow: /api/admin
+Disallow: /api/orders
+Disallow: /api/users
+Disallow: /api/login
+Disallow: /api/logout
+Disallow: /api/me
+Disallow: /api/upload
+Disallow: /api/ratings
+Disallow: /api/stats
+Disallow: /api/files
 
 Sitemap: https://makkahrefrigerators.com/sitemap.xml

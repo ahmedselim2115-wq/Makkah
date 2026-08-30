@@ -45,7 +45,11 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "مصنع مكة للثلاجات" }],
   icons: {
-    icon: '/logo.png',
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/logo.png', type: 'image/png', sizes: '512x512' },
+    ],
+    apple: '/logo.png',
   },
   robots: {
     index: true,
