@@ -20,11 +20,12 @@ const tajawal = Tajawal({
 export const metadata: Metadata = {
   metadataBase: new URL("https://makkahrefrigerators.com"),
   title: {
-    default: "مصنع مكة للثلاجات | ثلاجات تجارية وصناعية بالقاهرة",
+    default: "مصنع مكة للثلاجات | Makkah Refrigerators Factory - Cairo, Egypt",
     template: "%s | مصنع مكة للثلاجات",
   },
-  description: "مصنع مكة للثلاجات - متخصصون في تصنيع الثلاجات التجارية والصناعية وغرف التبريد بأحدث التقنيات وأعلى معايير الجودة في مصر.",
+  description: "مصنع مكة للثلاجات - متخصصون في تصنيع الثلاجات التجارية والصناعية وغرف التبريد في مصر | Makkah Refrigerators Factory - Commercial & industrial refrigerators, display fridges, and cold rooms manufacturer in Cairo, Egypt.",
   keywords: [
+    // عربي
     "مصنع مكة للثلاجات",
     "ثلاجات تجارية",
     "ثلاجات عرض",
@@ -33,6 +34,14 @@ export const metadata: Metadata = {
     "ثلاجات لحوم",
     "تبريد القاهرة",
     "ثلاجات مصر",
+    // English
+    "Makkah Refrigerators",
+    "commercial refrigerators Egypt",
+    "display fridge manufacturer",
+    "industrial freezers Egypt",
+    "cold room manufacturer Cairo",
+    "refrigerator factory Egypt",
+    "meat fridge Egypt",
   ],
   authors: [{ name: "مصنع مكة للثلاجات" }],
   icons: {
@@ -49,24 +58,28 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: "https://makkahrefrigerators.com",
+    languages: {
+      'ar-EG': 'https://makkahrefrigerators.com',
+      'en-US': 'https://makkahrefrigerators.com',
+    },
   },
   openGraph: {
-    title: "مصنع مكة للثلاجات",
-    description: "حلول تبريد متكاملة - ثلاجات تجارية وصناعية بأحدث التقنيات",
+    title: "مصنع مكة للثلاجات | Makkah Refrigerators Factory",
+    description: "حلول تبريد متكاملة - ثلاجات تجارية وصناعية | Complete refrigeration solutions - commercial & industrial refrigerators",
     url: "https://makkahrefrigerators.com",
     siteName: "مصنع مكة للثلاجات",
     images: ["/logo.png"],
     type: "website",
     locale: "ar_EG",
+    alternateLocale: ["en_US"],
   },
   twitter: {
     card: "summary_large_image",
-    title: "مصنع مكة للثلاجات",
-    description: "حلول تبريد متكاملة - ثلاجات تجارية وصناعية بأحدث التقنيات",
+    title: "مصنع مكة للثلاجات | Makkah Refrigerators Factory",
+    description: "حلول تبريد متكاملة - ثلاجات تجارية وصناعية | Complete refrigeration solutions",
     images: ["/logo.png"],
   },
 };
-
 export default function RootLayout({
   children,
 }: Readonly<{
